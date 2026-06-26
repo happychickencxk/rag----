@@ -469,3 +469,211 @@ page {
   border-bottom: 15rpx solid transparent;
   transform: rotate(-18deg) translateX(2rpx);
 }
+
+.sheet-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.42);
+  display: flex;
+  align-items: flex-end;
+}
+
+.kb-sheet {
+  width: 100%;
+  max-height: 70vh;
+  background: #ffffff;
+  border-radius: 32rpx 32rpx 0 0;
+  overflow: hidden;
+}
+
+.sheet-handle {
+  width: 72rpx;
+  height: 8rpx;
+  margin: 22rpx auto 16rpx;
+  border-radius: 8rpx;
+  background: #ededed;
+}
+
+.sheet-head {
+  height: 72rpx;
+  padding: 0 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid #ededed;
+}
+
+.sheet-title {
+  color: #1a1a1a;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.sheet-close {
+  width: 48rpx;
+  height: 48rpx;
+  color: #888888;
+  font-size: 54rpx;
+  font-weight: 300;
+  line-height: 44rpx;
+  text-align: center;
+}
+
+.sheet-list {
+  max-height: calc(70vh - 118rpx);
+}
+
+.sheet-kb-cell {
+  width: 100%;
+  min-height: 136rpx;
+  padding: 24rpx 34rpx;
+  display: flex;
+  align-items: center;
+  border-bottom: 1rpx solid #ededed;
+}
+
+.sheet-kb-cell.is-disabled {
+  opacity: 0.45;
+}
+
+.sheet-kb-icon {
+  width: 92rpx;
+  height: 92rpx;
+  margin-right: 24rpx;
+  border-radius: 22rpx;
+  background: #e6f0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 92rpx;
+}
+
+.sheet-kb-icon.locked {
+  background: #f5f5f5;
+}
+
+.sheet-book {
+  position: relative;
+  width: 40rpx;
+  height: 34rpx;
+}
+
+.sheet-book-page {
+  position: absolute;
+  top: 0;
+  width: 18rpx;
+  height: 32rpx;
+  border: 4rpx solid #3478ff;
+  border-radius: 4rpx;
+}
+
+.sheet-book-page.left {
+  left: 0;
+  border-right-width: 2rpx;
+}
+
+.sheet-book-page.right {
+  right: 0;
+  border-left-width: 2rpx;
+}
+
+.sheet-lock {
+  position: relative;
+  width: 42rpx;
+  height: 42rpx;
+}
+
+.sheet-lock-ring {
+  position: absolute;
+  left: 10rpx;
+  top: 0;
+  width: 22rpx;
+  height: 22rpx;
+  border: 4rpx solid #d6d6d6;
+  border-bottom: 0;
+  border-radius: 18rpx 18rpx 0 0;
+}
+
+.sheet-lock-body {
+  position: absolute;
+  left: 6rpx;
+  bottom: 0;
+  width: 30rpx;
+  height: 26rpx;
+  border: 4rpx solid #d6d6d6;
+  border-radius: 5rpx;
+}
+
+.sheet-kb-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sheet-kb-title-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.sheet-kb-title {
+  max-width: 250rpx;
+  color: #1a1a1a;
+  font-size: 32rpx;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.sheet-permission {
+  margin-left: 14rpx;
+  padding: 3rpx 12rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  line-height: 1.25;
+  flex: 0 0 auto;
+}
+
+.sheet-permission.granted {
+  color: #10b981;
+  background: #ecfdf5;
+}
+
+.sheet-permission.denied {
+  color: #ff7a7a;
+  background: #fff1f1;
+}
+
+.sheet-kb-desc {
+  margin-top: 12rpx;
+  color: #888888;
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.sheet-kb-meta {
+  margin-top: 10rpx;
+  color: #bdbdbd;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.sheet-check,
+.sheet-arrow {
+  width: 34rpx;
+  margin-left: 18rpx;
+  color: #3478ff;
+  font-size: 40rpx;
+  line-height: 1;
+  text-align: right;
+  flex: 0 0 34rpx;
+}
+
+.sheet-arrow {
+  color: #bdbdbd;
+}

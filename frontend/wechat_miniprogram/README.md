@@ -4,9 +4,9 @@
 
 ## 已迁移页面
 
-- `miniprogram/pages/chat/index.*`：问答首页，已按 Figma Make 对话态进行视觉对齐。
-- `miniprogram/pages/knowledge/index.*`：知识库选择。
-- `miniprogram/pages/history/index.*`：历史会话。
+- `miniprogram/pages/chat/index.*`：问答首页，已按 Figma Make 对话态进行视觉对齐，并支持底部弹层切换知识库。
+- `miniprogram/pages/knowledge/index.*`：知识库页，按 Figma Make 全宽列表样式调整。
+- `miniprogram/pages/history/index.*`：历史会话，按 Figma Make 分组列表样式调整。
 - `miniprogram/pages/citation/detail.*`：引用详情。
 - `miniprogram/pages/feedback/submit.*`：反馈纠错。
 - `miniprogram/pages/profile/index.*`：我的页。

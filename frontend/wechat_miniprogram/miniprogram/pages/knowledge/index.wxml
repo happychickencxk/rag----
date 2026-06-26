@@ -1,25 +1,38 @@
-<view class="page knowledge-page">
-  <view class="search-box">
-    <input value="{{keyword}}" placeholder="搜索知识库..." bindinput="onSearch" />
+<view class="knowledge-page">
+  <view class="search-section">
+    <view class="search-box">
+      <text class="search-icon">⌕</text>
+      <input value="{{keyword}}" placeholder="搜索知识库..." placeholder-class="search-placeholder" bindinput="onSearch" />
+    </view>
   </view>
 
-  <view class="empty card" wx:if="{{!list.length}}">
+  <view class="empty" wx:if="{{!list.length}}">
     <view class="empty-title">暂无匹配知识库</view>
     <view class="empty-desc">请换一个关键词重新搜索。</view>
   </view>
 
-  <button class="kb-cell card {{item.permission === 'denied' ? 'disabled' : ''}}" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="selectKb">
-    <view class="kb-left">
-      <view class="kb-mark {{item.permission === 'denied' ? 'locked' : ''}}">{{item.permission === "denied" ? "锁" : "库"}}</view>
+  <view class="kb-list" wx:else>
+    <button class="kb-cell {{item.permission === 'denied' ? 'is-disabled' : ''}}" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="selectKb">
+      <view class="kb-mark {{item.permission === 'denied' ? 'locked' : ''}}">
+        <view wx:if="{{item.permission !== 'denied'}}" class="book-icon">
+          <view class="book-page left"></view>
+          <view class="book-page right"></view>
+        </view>
+        <view wx:else class="lock-icon">
+          <view class="lock-ring"></view>
+          <view class="lock-body"></view>
+        </view>
+      </view>
       <view class="kb-info">
         <view class="kb-title-row">
-          <text class="kb-title">{{item.name}}</text>
-          <text class="selected" wx:if="{{selectedKbId === item.id}}">已选</text>
+          <text class="kb-title one-line">{{item.name}}</text>
+          <text class="permission {{item.permission}}">{{item.permissionText}}</text>
         </view>
-        <view class="kb-desc two-line">{{item.description}}</view>
-        <view class="kb-meta">{{item.department}} · {{item.docCount}} 份文档 · 更新 {{item.updatedAt}}</view>
+        <view class="kb-desc one-line">{{item.description}}</view>
+        <view class="kb-meta one-line">{{item.department}} · {{item.docCount}} 份文档 · 更新于{{item.updatedAt}}</view>
       </view>
-    </view>
-    <view class="permission {{item.permission}}">{{item.permissionText}}</view>
-  </button>
+      <text class="selected-mark" wx:if="{{selectedKbId === item.id}}">✓</text>
+      <text class="cell-arrow" wx:else>›</text>
+    </button>
+  </view>
 </view>

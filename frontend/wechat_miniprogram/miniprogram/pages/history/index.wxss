@@ -3,63 +3,193 @@ page {
 }
 
 .history-page {
-  padding: 24rpx;
+  min-height: 100vh;
+  background: #f7f8fa;
+}
+
+.search-section {
+  padding: 20rpx 38rpx;
+  background: #ffffff;
+  border-bottom: 1rpx solid #ededed;
 }
 
 .search-box {
-  background: #ffffff;
+  height: 72rpx;
+  padding: 0 24rpx;
   border-radius: 18rpx;
-  padding: 20rpx 24rpx;
-  margin-bottom: 22rpx;
+  background: #f5f5f5;
+  display: flex;
+  align-items: center;
+}
+
+.search-icon {
+  width: 34rpx;
+  margin-right: 12rpx;
+  color: #bdbdbd;
+  font-size: 34rpx;
+  line-height: 1;
+  flex: 0 0 34rpx;
 }
 
 .search-box input {
+  flex: 1;
+  min-width: 0;
+  color: #1a1a1a;
   font-size: 28rpx;
 }
 
-.group {
-  margin-bottom: 28rpx;
+.search-placeholder {
+  color: #bdbdbd;
 }
 
 .group-title {
-  color: #888888;
-  font-size: 24rpx;
-  margin: 0 0 14rpx 8rpx;
-  font-weight: 600;
+  height: 72rpx;
+  padding: 0 44rpx;
+  background: #f7f8fa;
+  color: #bdbdbd;
+  font-size: 26rpx;
+  font-weight: 700;
+  line-height: 72rpx;
+}
+
+.session-list {
+  background: #ffffff;
 }
 
 .session-cell {
   width: 100%;
-  padding: 24rpx;
-  margin-bottom: 16rpx;
+  min-height: 142rpx;
+  padding: 24rpx 28rpx 24rpx 44rpx;
+  background: #ffffff;
+  display: flex;
+  align-items: flex-start;
+  border-bottom: 1rpx solid #ededed;
 }
 
-.session-meta {
-  color: #1677ff;
-  font-size: 22rpx;
-  margin-bottom: 10rpx;
+.session-icon {
+  width: 78rpx;
+  height: 78rpx;
+  margin-right: 24rpx;
+  border-radius: 20rpx;
+  background: #e6f0ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 78rpx;
+}
+
+.bubble-icon {
+  width: 30rpx;
+  height: 26rpx;
+  border: 4rpx solid #3478ff;
+  border-radius: 5rpx;
+  position: relative;
+}
+
+.bubble-icon::after {
+  content: "";
+  position: absolute;
+  left: 4rpx;
+  bottom: -10rpx;
+  width: 10rpx;
+  height: 10rpx;
+  border-left: 4rpx solid #3478ff;
+  border-bottom: 4rpx solid #3478ff;
+  background: #e6f0ff;
+  transform: skewY(-30deg);
+}
+
+.session-body {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2rpx;
+}
+
+.session-title-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
 }
 
 .session-title {
   color: #1a1a1a;
   font-size: 30rpx;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+.session-meta {
+  margin-top: 12rpx;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.kb-tag {
+  max-width: 160rpx;
+  padding: 3rpx 12rpx;
+  border-radius: 6rpx;
+  background: #f5f5f5;
+  color: #888888;
+  font-size: 22rpx;
   font-weight: 600;
+  line-height: 1.25;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 0 1 auto;
+}
+
+.message-count {
+  margin-left: 14rpx;
+  color: #bdbdbd;
+  font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1.25;
+  flex: 0 0 auto;
 }
 
 .session-preview {
-  margin-top: 10rpx;
+  margin-top: 12rpx;
   color: #888888;
+  font-size: 26rpx;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.session-side {
+  width: 96rpx;
+  margin-left: 18rpx;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: 14rpx;
+  flex: 0 0 96rpx;
+}
+
+.session-time {
+  color: #bdbdbd;
   font-size: 24rpx;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+.session-arrow {
+  color: #bdbdbd;
+  font-size: 36rpx;
+  line-height: 1;
 }
 
 .empty {
-  padding: 56rpx 24rpx;
+  padding: 80rpx 24rpx;
+  background: #ffffff;
   text-align: center;
 }
 
 .empty-title {
+  color: #1a1a1a;
   font-size: 30rpx;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .empty-desc {

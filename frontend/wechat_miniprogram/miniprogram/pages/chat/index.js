@@ -1,12 +1,14 @@
-const { citations, answerText, answerBlocks, findKnowledgeBase } = require("../../utils/mock");
+const { knowledgeBases, citations, answerText, answerBlocks, findKnowledgeBase } = require("../../utils/mock");
 
 Page({
   data: {
     selectedKb: findKnowledgeBase("aftersales"),
+    knowledgeBases,
     citations,
     question: "",
     citationExpanded: false,
     feedbackValue: "",
+    showKbSheet: false,
     messages: [
       {
         id: "m1",
@@ -63,7 +65,28 @@ Page({
   },
 
   openKnowledge() {
-    wx.switchTab({ url: "/pages/knowledge/index" });
+    this.setData({ showKbSheet: true });
+  },
+
+  closeKbSheet() {
+    this.setData({ showKbSheet: false });
+  },
+
+  noop() {},
+
+  selectKbFromSheet(e) {
+    const id = e.currentTarget.dataset.id;
+    const item = knowledgeBases.find((kb) => kb.id === id);
+    if (!item || item.permission === "denied") {
+      wx.showToast({ title: "无访问权限", icon: "none" });
+      return;
+    }
+    const app = getApp();
+    app.globalData.selectedKbId = id;
+    this.setData({
+      selectedKb: item,
+      showKbSheet: false,
+    });
   },
 
   openHistory() {

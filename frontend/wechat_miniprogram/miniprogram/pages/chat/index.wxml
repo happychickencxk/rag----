@@ -112,4 +112,44 @@
       <view class="send-plane"></view>
     </button>
   </view>
+
+  <view wx:if="{{showKbSheet}}" class="sheet-mask" catchtap="closeKbSheet">
+    <view class="kb-sheet safe-bottom" catchtap="noop">
+      <view class="sheet-handle"></view>
+      <view class="sheet-head">
+        <text class="sheet-title">选择知识库</text>
+        <button class="sheet-close" bindtap="closeKbSheet">×</button>
+      </view>
+      <scroll-view class="sheet-list" scroll-y>
+        <button
+          class="sheet-kb-cell {{item.permission === 'denied' ? 'is-disabled' : ''}}"
+          wx:for="{{knowledgeBases}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="selectKbFromSheet"
+        >
+          <view class="sheet-kb-icon {{item.permission === 'denied' ? 'locked' : ''}}">
+            <view wx:if="{{item.permission !== 'denied'}}" class="sheet-book">
+              <view class="sheet-book-page left"></view>
+              <view class="sheet-book-page right"></view>
+            </view>
+            <view wx:else class="sheet-lock">
+              <view class="sheet-lock-ring"></view>
+              <view class="sheet-lock-body"></view>
+            </view>
+          </view>
+          <view class="sheet-kb-content">
+            <view class="sheet-kb-title-row">
+              <text class="sheet-kb-title one-line">{{item.name}}</text>
+              <text class="sheet-permission {{item.permission}}">{{item.permissionText}}</text>
+            </view>
+            <view class="sheet-kb-desc one-line">{{item.description}}</view>
+            <view class="sheet-kb-meta one-line">{{item.department}} · {{item.docCount}} 份文档 · 更新于{{item.updatedAt}}</view>
+          </view>
+          <text class="sheet-check" wx:if="{{selectedKb.id === item.id}}">✓</text>
+          <text class="sheet-arrow" wx:else>›</text>
+        </button>
+      </scroll-view>
+    </view>
+  </view>
 </view>

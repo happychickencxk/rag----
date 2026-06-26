@@ -193,7 +193,10 @@ function groupSessions() {
       group = { name: session.group, items: [] };
       groups.push(group);
     }
-    group.items.push(session);
+    group.items.push({
+      ...session,
+      displayTime: session.time || session.group,
+    });
   });
   return groups;
 }
