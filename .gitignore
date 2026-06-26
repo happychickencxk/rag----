@@ -40,6 +40,9 @@ Thumbs.db
 # 微信开发者工具本地配置
 frontend/project.config.json
 frontend/project.private.config.json
+frontend/figma_make/project.config.json
+frontend/figma_make/project.private.config.json
+frontend/wechat_miniprogram/project.private.config.json
 
 # 临时文件
 *.tmp

@@ -1,0 +1,53 @@
+{
+  "pages": [
+    "pages/chat/index",
+    "pages/knowledge/index",
+    "pages/history/index",
+    "pages/profile/index",
+    "pages/citation/detail",
+    "pages/feedback/submit",
+    "pages/states/index"
+  ],
+  "window": {
+    "backgroundColor": "#F7F8FA",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "企业知识库助手",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#888888",
+    "selectedColor": "#1677FF",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/chat/index",
+        "text": "问答",
+        "iconPath": "images/icons/home.png",
+        "selectedIconPath": "images/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/knowledge/index",
+        "text": "知识库",
+        "iconPath": "images/icons/business.png",
+        "selectedIconPath": "images/icons/business-active.png"
+      },
+      {
+        "pagePath": "pages/history/index",
+        "text": "历史",
+        "iconPath": "images/icons/examples.png",
+        "selectedIconPath": "images/icons/examples-active.png"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "text": "我的",
+        "iconPath": "images/icons/usercenter.png",
+        "selectedIconPath": "images/icons/usercenter-active.png"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

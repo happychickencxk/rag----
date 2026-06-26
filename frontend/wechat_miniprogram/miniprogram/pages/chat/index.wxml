@@ -1,0 +1,83 @@
+<view class="page chat-page">
+  <view class="top-actions">
+    <button class="icon-btn" bindtap="openHistory">历史</button>
+    <button class="icon-btn">更多</button>
+  </view>
+
+  <button class="kb-picker" bindtap="openKnowledge">
+    <view class="kb-main">
+      <view class="kb-icon">知</view>
+      <view>
+        <view class="kb-name">{{selectedKb.name}}</view>
+        <view class="kb-desc">{{selectedKb.description}}</view>
+      </view>
+    </view>
+    <view class="kb-change">切换</view>
+  </button>
+
+  <view class="welcome card">
+    <view class="welcome-icon">AI</view>
+    <view class="welcome-content">
+      <view class="welcome-title">企业知识库助手</view>
+      <view class="welcome-text">我可以基于 {{selectedKb.name}} 回答问题，并提供带引用来源的可信答案。</view>
+    </view>
+  </view>
+
+  <view class="examples">
+    <view class="section-label">常见问题</view>
+    <view class="chip-list">
+      <button class="chip" wx:for="{{examples}}" wx:key="*this" data-question="{{item}}" bindtap="onSelectExample">{{item}}</button>
+    </view>
+  </view>
+
+  <view class="message-list">
+    <block wx:for="{{messages}}" wx:key="id">
+      <view wx:if="{{item.role === 'user'}}" class="message-row user-row">
+        <view class="user-bubble">{{item.text}}</view>
+      </view>
+
+      <view wx:if="{{item.role === 'assistant'}}" class="message-row ai-row">
+        <view class="ai-avatar">AI</view>
+        <view class="ai-card">
+          <view class="low-confidence" wx:if="{{item.lowConfidence}}">回答置信度较低，请结合引用来源人工确认。</view>
+          <text class="answer-text">{{item.text}}</text>
+
+          <view class="citation-card" wx:if="{{item.citations.length}}">
+            <button class="citation-header" bindtap="toggleCitations">
+              <view class="citation-title">查看来源 <text class="citation-count">{{item.citations.length}}</text></view>
+              <view class="citation-arrow">{{citationExpanded ? "收起" : "展开"}}</view>
+            </button>
+            <view wx:if="{{citationExpanded}}" class="citation-list">
+              <button class="citation-item" wx:for="{{item.citations}}" wx:key="id" data-id="{{item.id}}" bindtap="openCitation">
+                <view class="citation-index">{{index + 1}}</view>
+                <view class="citation-body">
+                  <view class="citation-line">
+                    <text class="citation-name one-line">{{item.title}}</text>
+                    <text class="score {{item.scoreLevel}}">{{item.rerankPercent}}</text>
+                  </view>
+                  <view class="citation-path one-line">{{item.path}}</view>
+                  <view class="citation-excerpt two-line">{{item.excerpt}}</view>
+                </view>
+              </button>
+            </view>
+          </view>
+
+          <view class="feedback-bar">
+            <button class="feedback-btn {{feedbackValue === 'like' ? 'active' : ''}}" data-value="like" bindtap="markHelpful">有用</button>
+            <button class="feedback-btn {{feedbackValue === 'dislike' ? 'danger' : ''}}" data-value="dislike" bindtap="markHelpful">没用</button>
+            <button class="feedback-btn" bindtap="copyAnswer">复制</button>
+            <button class="feedback-btn" bindtap="regenerate">重答</button>
+            <button class="feedback-btn" bindtap="submitFeedback">纠错</button>
+          </view>
+        </view>
+      </view>
+    </block>
+  </view>
+
+  <view class="input-placeholder"></view>
+  <view class="question-bar safe-bottom">
+    <button class="voice-btn" bindtap="voiceInput">语音</button>
+    <textarea class="question-input" value="{{question}}" auto-height maxlength="300" placeholder="请输入问题..." bindinput="onInput"></textarea>
+    <button class="send-btn {{question ? 'enabled' : ''}}" bindtap="onSend">发送</button>
+  </view>
+</view>

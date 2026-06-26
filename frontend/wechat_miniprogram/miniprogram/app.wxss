@@ -1,0 +1,57 @@
+page {
+  background: #f7f8fa;
+  color: #1a1a1a;
+  font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+  font-size: 28rpx;
+}
+
+view,
+text,
+scroll-view,
+input,
+textarea,
+button {
+  box-sizing: border-box;
+}
+
+button {
+  background: transparent;
+  border: 0;
+  margin: 0;
+  padding: 0;
+  line-height: 1.4;
+  text-align: left;
+}
+
+button::after {
+  border: none;
+}
+
+.page {
+  min-height: 100vh;
+  background: #f7f8fa;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 24rpx;
+  border: 1rpx solid #ededed;
+}
+
+.one-line {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.two-line {
+  display: -webkit-box;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}

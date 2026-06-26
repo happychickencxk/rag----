@@ -28,16 +28,20 @@
 - 当前工作分支：`main`。
 - 当前远程：`origin` 指向 `https://github.com/happychickencxk/rag----.git`。
 - 用户已明确：暂不修改 GitHub 仓库名。
-- 当前任务只做文档维护，不修改 `frontend/src` 运行时代码。
-- 执行本轮任务前发现 `frontend/wechat_miniprogram/` 是未跟踪目录，且里面有独立 `.git`。本轮不处理、不暂存、不删除；后续 agent 需要先向用户确认它是正式小程序工程、临时生成物还是应独立管理的子仓库。
+- 用户已确认：`frontend/wechat_miniprogram/` 是后续实际开发的小程序项目，当前内部只是模板。
+- 用户已将 Figma Make 生成代码放入 `frontend/figma_make/`。
+- 当前迁移方向：从 `frontend/figma_make` 提取页面、数据和视觉规则，迁移到 `frontend/wechat_miniprogram` 的原生小程序页面。
+- `frontend/wechat_miniprogram/` 原本内部有独立 `.git`，且仅包含模板初始提交、无远程。为让外层仓库统一管理正式小程序源码，本轮已移除该内嵌 `.git`。
 
 ## 下一阶段建议实现内容
 
 优先顺序如下：
 
-1. 前端结构拆分
-   - 将 `frontend/src/app/App.tsx` 中的类型、模拟数据、布局组件、页面组件拆分到独立文件。
-   - 保持视觉和交互行为不变。
+1. 小程序迁移基线
+   - 已在 `frontend/wechat_miniprogram/miniprogram/pages` 下新增问答、知识库、历史、引用、反馈、我的页和状态预览页面。
+   - 已在 `frontend/wechat_miniprogram/miniprogram/utils/mock.js` 中集中放置迁移阶段模拟数据。
+   - 已将 `app.json` 启动页和 tabBar 指向新的 RAG 小程序页面。
+   - 已将微信开发者工具项目名改为 `rag小程序代码`，并忽略本地私有配置 `project.private.config.json`。
 2. 请求层准备
    - 新增统一 API client。
    - 自动附带 `Authorization` 和 `X-Client-Type: wechat`。
@@ -100,5 +104,6 @@
 - 每完成一个明确功能点，就同步更新 `.ai-agent` 中相关文档并单独 commit。
 - 不要把密钥、token、`.env` 或本地工具配置提交到仓库。
 - 不要把小程序端做成 Web 管理后台。
-- 改前端运行时代码后至少执行 `frontend` 下的构建检查。
+- 改 Figma Make React 代码后，在 `frontend/figma_make` 下执行构建检查。
+- 改微信小程序代码后，用微信开发者工具打开 `frontend/wechat_miniprogram` 做编译预览；CLI 环境下至少检查 JSON 和 JS 语法。
 - 遇到未跟踪文件时先判断是否属于本任务；不属于本任务就不要暂存。

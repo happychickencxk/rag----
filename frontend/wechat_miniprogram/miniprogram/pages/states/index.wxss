@@ -1,0 +1,54 @@
+page {
+  background: #f7f8fa;
+}
+
+.states-page {
+  padding: 24rpx;
+}
+
+.state-card {
+  display: flex;
+  align-items: flex-start;
+  padding: 28rpx;
+  margin-bottom: 20rpx;
+}
+
+.state-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 18rpx;
+  background: #e6f0ff;
+  color: #1677ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 20rpx;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.state-title {
+  font-size: 30rpx;
+  color: #1a1a1a;
+  font-weight: 600;
+}
+
+.state-desc {
+  margin-top: 8rpx;
+  color: #666666;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+.no-evidence .state-icon,
+.low-confidence .state-icon,
+.blocked .state-icon {
+  background: #fff3e0;
+  color: #fa8919;
+}
+
+.no-permission .state-icon,
+.timeout .state-icon {
+  background: #fff0ef;
+  color: #ef4444;
+}

@@ -1,0 +1,33 @@
+<view class="page citation-page">
+  <view class="doc-card card">
+    <view class="doc-title">{{citation.title}}</view>
+    <view class="doc-meta">所属：{{citation.kb}}</view>
+    <view class="doc-meta">章节：{{citation.path}}</view>
+    <view class="doc-meta">更新：{{citation.updatedAt}}</view>
+    <view class="permission {{citation.permitted ? 'ok' : 'limited'}}">{{citation.permitted ? "已授权" : "权限受限"}}</view>
+  </view>
+
+  <view class="score-card card">
+    <view class="score-item">
+      <view class="score-value">{{citation.similarity}}</view>
+      <view class="score-label">相似度</view>
+    </view>
+    <view class="score-item">
+      <view class="score-value">{{citation.rerank}}</view>
+      <view class="score-label">Rerank</view>
+    </view>
+  </view>
+
+  <view class="content-card card">
+    <view class="section-title">原文片段</view>
+    <view class="highlight">{{citation.highlight}}</view>
+    <view class="excerpt {{expanded ? '' : 'clamp'}}">{{citation.excerpt}}</view>
+    <button class="expand-btn" bindtap="toggleText">{{expanded ? "收起片段" : "展开完整片段"}}</button>
+    <view class="limited-tip" wx:if="{{!citation.permitted}}">该文档片段受权限保护，仅可查看摘要。</view>
+  </view>
+
+  <view class="action-bar">
+    <button class="action primary" bindtap="copyCitation">复制引用</button>
+    <button class="action" bindtap="feedback">反馈引用错误</button>
+  </view>
+</view>

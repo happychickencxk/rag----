@@ -1,0 +1,69 @@
+page {
+  background: #f7f8fa;
+}
+
+.history-page {
+  padding: 24rpx;
+}
+
+.search-box {
+  background: #ffffff;
+  border-radius: 18rpx;
+  padding: 20rpx 24rpx;
+  margin-bottom: 22rpx;
+}
+
+.search-box input {
+  font-size: 28rpx;
+}
+
+.group {
+  margin-bottom: 28rpx;
+}
+
+.group-title {
+  color: #888888;
+  font-size: 24rpx;
+  margin: 0 0 14rpx 8rpx;
+  font-weight: 600;
+}
+
+.session-cell {
+  width: 100%;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+}
+
+.session-meta {
+  color: #1677ff;
+  font-size: 22rpx;
+  margin-bottom: 10rpx;
+}
+
+.session-title {
+  color: #1a1a1a;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.session-preview {
+  margin-top: 10rpx;
+  color: #888888;
+  font-size: 24rpx;
+}
+
+.empty {
+  padding: 56rpx 24rpx;
+  text-align: center;
+}
+
+.empty-title {
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.empty-desc {
+  margin-top: 10rpx;
+  color: #888888;
+  font-size: 26rpx;
+}

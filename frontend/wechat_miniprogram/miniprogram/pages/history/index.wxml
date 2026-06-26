@@ -1,0 +1,19 @@
+<view class="page history-page">
+  <view class="search-box">
+    <input value="{{keyword}}" placeholder="搜索历史问题..." bindinput="onSearch" />
+  </view>
+
+  <view class="empty card" wx:if="{{!groups.length}}">
+    <view class="empty-title">暂无历史会话</view>
+    <view class="empty-desc">去提问吧，记录会在这里显示。</view>
+  </view>
+
+  <view wx:for="{{groups}}" wx:key="name" class="group">
+    <view class="group-title">{{item.name}}</view>
+    <button class="session-cell card" wx:for="{{item.items}}" wx:for-item="session" wx:key="id" data-title="{{session.title}}" bindtap="openSession" bindlongpress="deleteSession">
+      <view class="session-meta">{{session.kb}} · {{session.messageCount}} 条消息 <text wx:if="{{session.time}}">· {{session.time}}</text></view>
+      <view class="session-title one-line">{{session.title}}</view>
+      <view class="session-preview one-line">AI：{{session.preview}}</view>
+    </button>
+  </view>
+</view>

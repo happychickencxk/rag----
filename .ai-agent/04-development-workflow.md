@@ -34,13 +34,27 @@ git status -sb
 git diff --check
 ```
 
-前端代码改动：
+Figma Make 原型改动：
 
 ```powershell
-cd frontend
+cd frontend\figma_make
 npm install
 npm run build
 ```
+
+微信小程序代码改动：
+
+```powershell
+# JSON 配置检查
+Get-ChildItem -Recurse frontend\wechat_miniprogram\miniprogram -Include *.json |
+  ForEach-Object { Get-Content -Raw -Encoding UTF8 $_.FullName | ConvertFrom-Json | Out-Null }
+
+# JS 语法检查
+Get-ChildItem -Recurse frontend\wechat_miniprogram\miniprogram -Include *.js |
+  ForEach-Object { node --check $_.FullName }
+```
+
+最终仍需要用微信开发者工具打开 `frontend\wechat_miniprogram` 进行编译预览，因为 CLI 检查不能完全覆盖 WXML/WXSS 与小程序运行时行为。
 
 如果依赖安装失败，先记录错误原因，不要静默跳过。
 
