@@ -97,15 +97,17 @@
         <view class="mic-base"></view>
       </view>
     </button>
-    <textarea
-      class="question-input"
-      value="{{question}}"
-      auto-height
-      maxlength="300"
-      placeholder="请输入你的问题..."
-      placeholder-class="question-placeholder"
-      bindinput="onInput"
-    ></textarea>
+    <view class="input-shell">
+      <textarea
+        class="question-input"
+        value="{{question}}"
+        auto-height
+        maxlength="300"
+        placeholder="请输入你的问题..."
+        placeholder-class="question-placeholder"
+        bindinput="onInput"
+      ></textarea>
+    </view>
     <button class="send-btn {{question ? 'enabled' : ''}}" bindtap="onSend" aria-label="发送">
       <view class="send-plane"></view>
     </button>

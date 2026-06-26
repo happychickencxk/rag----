@@ -363,13 +363,25 @@ page {
   border-top: 1rpx solid #ededed;
 }
 
+.question-bar button {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  line-height: normal;
+  overflow: hidden;
+}
+
 .voice-btn {
   width: 72rpx;
+  min-width: 72rpx;
+  max-width: 72rpx;
   height: 72rpx;
+  min-height: 72rpx;
+  max-height: 72rpx;
+  flex: 0 0 72rpx;
   border-radius: 36rpx;
   background: #f5f5f5;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .mic-icon {
@@ -408,13 +420,21 @@ page {
   background: #888888;
 }
 
-.question-input {
+.input-shell {
   flex: 1;
+  min-width: 0;
+  min-height: 72rpx;
+  border-radius: 16rpx;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+
+.question-input {
+  width: 100%;
   min-height: 72rpx;
   max-height: 168rpx;
   padding: 18rpx 22rpx;
-  border-radius: 16rpx;
-  background: #f5f5f5;
+  background: transparent;
   color: #1a1a1a;
   font-size: 28rpx;
   line-height: 1.35;
@@ -426,11 +446,15 @@ page {
 
 .send-btn {
   width: 72rpx;
+  min-width: 72rpx;
+  max-width: 72rpx;
   height: 72rpx;
+  min-height: 72rpx;
+  max-height: 72rpx;
+  flex: 0 0 72rpx;
   border-radius: 16rpx;
   background: #bdbdbd;
   justify-content: center;
-  flex-shrink: 0;
 }
 
 .send-btn.enabled {
