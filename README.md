@@ -1,6 +1,8 @@
-# 企业知识库 RAG 问答系统小程序前端
+# rag小程序代码
 
 本仓库当前只负责企业知识库 RAG 问答系统的微信小程序前端设计与对接准备。现有 `frontend` 是 Figma Make 生成后的 React/Vite 高保真原型，用于验证小程序端页面结构、交互路径和接口字段映射；不是后端服务，也不是 Web 管理后台。
+
+该代码为 39 组成员制作。
 
 ## 当前阶段
 
@@ -21,6 +23,7 @@
 重点文件：
 
 - `.ai-agent/README.md`：AI agent 阅读入口。
+- `.ai-agent/06-handoff-current-task.md`：当前任务接力说明。
 - `.ai-agent/03-api-contract.md`：小程序端优先接口契约摘要。
 - `frontend/src/app/App.tsx`：当前原型主应用，包含页面、组件、模拟数据和交互状态。
 - `frontend/src/imports/rag_miniprogram_context.md`：小程序端产品背景压缩说明。
