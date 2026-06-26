@@ -113,7 +113,48 @@ const citations = [
   },
 ];
 
-const answerText = "根据人事制度库的相关规定，试用期请假不会直接影响转正，但需注意以下几点：\n\n1. 正常请假：试用期员工享有与正式员工同等的请假权利，合规请假不影响转正考核。\n\n2. 注意事项：事假累计超过 5 天或病假累计超过 10 天，可能在转正评估时被纳入参考，建议提前与直属领导沟通。\n\n3. 请假流程：须通过 OA 系统提前申请，获批准后方可生效。";
+const answerText = "根据人事制度库的相关规定，试用期请假不会直接影响转正，但需注意以下几点：\n\n1. 正常请假：试用期员工享有与正式员工同等的请假权利，合规请假不影响转正考核。\n\n2. 注意事项：事假累计超过 5 天或病假累计超过 10 天，可能在转正评估时被纳入参考，建议提前与直属领导沟通。\n\n3. 请假流程：须通过 OA 系统提前申请，获批准后方可生效。\n\n建议在试用期内保持良好的出勤记录，如有特殊情况，请及时与 HR 沟通说明。";
+
+const answerBlocks = [
+  {
+    id: "p1",
+    segments: [
+      { id: "p1-s1", text: "根据人事制度库的相关规定，" },
+      { id: "p1-s2", text: "试用期请假不会直接影响转正", strong: true },
+      { id: "p1-s3", text: "，但需注意以下几点：" },
+    ],
+  },
+  {
+    id: "p2",
+    segments: [
+      { id: "p2-s1", text: "1. " },
+      { id: "p2-s2", text: "正常请假：", strong: true },
+      { id: "p2-s3", text: "试用期员工享有与正式员工同等的请假权利，合规请假不影响转正考核。" },
+    ],
+  },
+  {
+    id: "p3",
+    segments: [
+      { id: "p3-s1", text: "2. " },
+      { id: "p3-s2", text: "注意事项：", strong: true },
+      { id: "p3-s3", text: "事假累计超过 5 天或病假累计超过 10 天，可能在转正评估时被纳入参考，建议提前与直属领导沟通。" },
+    ],
+  },
+  {
+    id: "p4",
+    segments: [
+      { id: "p4-s1", text: "3. " },
+      { id: "p4-s2", text: "请假流程：", strong: true },
+      { id: "p4-s3", text: "须通过 OA 系统提前申请，获批准后方可生效。" },
+    ],
+  },
+  {
+    id: "p5",
+    segments: [
+      { id: "p5-s1", text: "建议在试用期内保持良好的出勤记录，如有特殊情况，请及时与 HR 沟通说明。" },
+    ],
+  },
+];
 
 const sessions = [
   { id: "s1", title: "试用期请假是否影响转正", kb: "人事制度库", preview: "试用期请假不会直接影响转正，但事假超5天需注意...", messageCount: 3, time: "14:30", group: "今天" },
@@ -162,6 +203,7 @@ module.exports = {
   examples,
   citations,
   answerText,
+  answerBlocks,
   sessions,
   statusCards,
   findKnowledgeBase,

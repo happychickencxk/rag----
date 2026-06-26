@@ -32,6 +32,8 @@
 - 用户已将 Figma Make 生成代码放入 `frontend/figma_make/`。
 - 当前迁移方向：从 `frontend/figma_make` 提取页面、数据和视觉规则，迁移到 `frontend/wechat_miniprogram` 的原生小程序页面。
 - `frontend/wechat_miniprogram/` 原本内部有独立 `.git`，且仅包含模板初始提交、无远程。为让外层仓库统一管理正式小程序源码，本轮已移除该内嵌 `.git`。
+- 最新进展：`pages/chat/index` 已按 Figma Make 问答页的对话态截图重做视觉，包括知识库连接条、用户问题气泡、AI 回答卡片、来源折叠、反馈栏和底部图标化输入栏。
+- 视觉限制：当前保留微信小程序原生导航栏，因此顶部状态栏、右上角微信胶囊按钮、导航栏右侧自定义图标无法完全复刻 Figma 手机壳里的静态效果；若后续必须像 Figma 一样控制顶部区域，需要改为自定义导航栏，但微信胶囊按钮仍不能移除。
 
 ## 下一阶段建议实现内容
 
@@ -42,6 +44,7 @@
    - 已在 `frontend/wechat_miniprogram/miniprogram/utils/mock.js` 中集中放置迁移阶段模拟数据。
    - 已将 `app.json` 启动页和 tabBar 指向新的 RAG 小程序页面。
    - 已将微信开发者工具项目名改为 `rag小程序代码`，并忽略本地私有配置 `project.private.config.json`。
+   - 已将问答页默认展示调整为 Figma 对话态，默认显示一轮“试用期请假是否影响转正？”问答，来源默认收起，回答支持局部加粗展示。
 2. 请求层准备
    - 新增统一 API client。
    - 自动附带 `Authorization` 和 `X-Client-Type: wechat`。

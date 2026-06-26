@@ -1,12 +1,11 @@
-const { knowledgeBases, examples, citations, answerText, findKnowledgeBase } = require("../../utils/mock");
+const { citations, answerText, answerBlocks, findKnowledgeBase } = require("../../utils/mock");
 
 Page({
   data: {
     selectedKb: findKnowledgeBase("aftersales"),
-    examples,
     citations,
     question: "",
-    citationExpanded: true,
+    citationExpanded: false,
     feedbackValue: "",
     messages: [
       {
@@ -18,6 +17,7 @@ Page({
         id: "m2",
         role: "assistant",
         text: answerText,
+        paragraphs: answerBlocks,
         lowConfidence: false,
         citations,
       },
@@ -53,10 +53,10 @@ Page({
     app.globalData.lastQuestion = question;
     this.setData({
       question: "",
-      citationExpanded: true,
+      citationExpanded: false,
       messages: [
         { id: `u-${Date.now()}`, role: "user", text: question },
-        { id: `a-${Date.now()}`, role: "assistant", text: answerText, citations },
+        { id: `a-${Date.now()}`, role: "assistant", text: answerText, paragraphs: answerBlocks, citations },
       ],
     });
     wx.pageScrollTo({ scrollTop: 9999, duration: 200 });
