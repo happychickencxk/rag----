@@ -37,6 +37,10 @@ pnpm-debug.log*
 .DS_Store
 Thumbs.db
 
+# 微信开发者工具本地配置
+frontend/project.config.json
+frontend/project.private.config.json
+
 # 临时文件
 *.tmp
 *.temp
