@@ -14,7 +14,7 @@
   <block wx:for="{{groups}}" wx:key="name">
     <view class="group-title">{{item.name}}</view>
     <view class="session-list">
-      <button class="session-cell" wx:for="{{item.items}}" wx:for-item="session" wx:key="id" data-title="{{session.title}}" bindtap="openSession" bindlongpress="deleteSession">
+      <view class="session-cell" wx:for="{{item.items}}" wx:for-item="session" wx:key="id" data-title="{{session.title}}" bindtap="openSession" bindlongpress="deleteSession">
         <view class="session-icon">
           <view class="bubble-icon"></view>
         </view>
@@ -32,7 +32,7 @@
           <text class="session-time">{{session.displayTime}}</text>
           <text class="session-arrow">›</text>
         </view>
-      </button>
+      </view>
     </view>
   </block>
 </view>

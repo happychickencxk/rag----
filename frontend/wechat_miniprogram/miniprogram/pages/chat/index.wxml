@@ -1,5 +1,5 @@
 <view class="chat-page">
-  <button class="kb-strip" bindtap="openKnowledge">
+  <view class="kb-strip" bindtap="openKnowledge">
     <view class="kb-left">
       <view class="kb-icon">
         <view class="book-line"></view>
@@ -12,7 +12,7 @@
       <text>切换</text>
       <text class="chevron">⌄</text>
     </view>
-  </button>
+  </view>
 
   <view class="conversation">
     <block wx:for="{{messages}}" wx:key="id">
@@ -121,23 +121,14 @@
         <button class="sheet-close" bindtap="closeKbSheet">×</button>
       </view>
       <scroll-view class="sheet-list" scroll-y>
-        <button
+        <view
           class="sheet-kb-cell {{item.permission === 'denied' ? 'is-disabled' : ''}}"
           wx:for="{{knowledgeBases}}"
           wx:key="id"
           data-id="{{item.id}}"
           bindtap="selectKbFromSheet"
         >
-          <view class="sheet-kb-icon {{item.permission === 'denied' ? 'locked' : ''}}">
-            <view wx:if="{{item.permission !== 'denied'}}" class="sheet-book">
-              <view class="sheet-book-page left"></view>
-              <view class="sheet-book-page right"></view>
-            </view>
-            <view wx:else class="sheet-lock">
-              <view class="sheet-lock-ring"></view>
-              <view class="sheet-lock-body"></view>
-            </view>
-          </view>
+          <view class="sheet-kb-icon {{item.permission === 'denied' ? 'locked' : ''}}"></view>
           <view class="sheet-kb-content">
             <view class="sheet-kb-title-row">
               <text class="sheet-kb-title one-line">{{item.name}}</text>
@@ -148,7 +139,7 @@
           </view>
           <text class="sheet-check" wx:if="{{selectedKb.id === item.id}}">✓</text>
           <text class="sheet-arrow" wx:else>›</text>
-        </button>
+        </view>
       </scroll-view>
     </view>
   </view>

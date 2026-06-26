@@ -53,11 +53,13 @@ page {
 }
 
 .session-list {
+  width: 100%;
   background: #ffffff;
 }
 
 .session-cell {
   width: 100%;
+  box-sizing: border-box;
   min-height: 142rpx;
   padding: 24rpx 28rpx 24rpx 44rpx;
   background: #ffffff;

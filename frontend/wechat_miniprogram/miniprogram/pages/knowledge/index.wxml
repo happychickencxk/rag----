@@ -12,17 +12,8 @@
   </view>
 
   <view class="kb-list" wx:else>
-    <button class="kb-cell {{item.permission === 'denied' ? 'is-disabled' : ''}}" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="selectKb">
-      <view class="kb-mark {{item.permission === 'denied' ? 'locked' : ''}}">
-        <view wx:if="{{item.permission !== 'denied'}}" class="book-icon">
-          <view class="book-page left"></view>
-          <view class="book-page right"></view>
-        </view>
-        <view wx:else class="lock-icon">
-          <view class="lock-ring"></view>
-          <view class="lock-body"></view>
-        </view>
-      </view>
+    <view class="kb-cell {{item.permission === 'denied' ? 'is-disabled' : ''}}" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="selectKb">
+      <view class="kb-mark {{item.permission === 'denied' ? 'locked' : ''}}"></view>
       <view class="kb-info">
         <view class="kb-title-row">
           <text class="kb-title one-line">{{item.name}}</text>
@@ -33,6 +24,6 @@
       </view>
       <text class="selected-mark" wx:if="{{selectedKbId === item.id}}">✓</text>
       <text class="cell-arrow" wx:else>›</text>
-    </button>
+    </view>
   </view>
 </view>
