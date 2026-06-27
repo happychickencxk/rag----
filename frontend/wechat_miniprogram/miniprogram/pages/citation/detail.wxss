@@ -1,5 +1,58 @@
 .citation-page {
   padding: 24rpx;
+  min-height: 100vh;
+}
+
+/* 状态区域 */
+.state-box {
+  padding: 120rpx 48rpx;
+  text-align: center;
+}
+
+.state-icon {
+  width: 96rpx;
+  height: 96rpx;
+  margin-bottom: 24rpx;
+  filter: brightness(0);
+  opacity: 0.16;
+}
+
+.forbidden-icon {
+  filter: brightness(0) saturate(100%) invert(38%) sepia(85%) saturate(2339%) hue-rotate(337deg) brightness(100%) contrast(88%);
+  opacity: 1;
+}
+
+.state-spinner {
+  width: 64rpx;
+  height: 64rpx;
+  border: 6rpx solid #f0f0f0;
+  border-top-color: #1677ff;
+  border-radius: 50%;
+  margin: 0 auto 20rpx;
+  animation: cit-spin 800ms linear infinite;
+}
+
+@keyframes cit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.state-text {
+  color: #888888;
+  font-size: 26rpx;
+}
+
+.state-title {
+  color: #1a1a1a;
+  font-size: 30rpx;
+  font-weight: 700;
+}
+
+.state-desc {
+  margin-top: 12rpx;
+  color: #888888;
+  font-size: 26rpx;
+  line-height: 1.5;
 }
 
 .doc-card,

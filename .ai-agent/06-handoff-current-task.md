@@ -2,6 +2,19 @@
 
 > 给下一位 AI agent 使用。开始继续开发前，先读本文件，再读本目录其它文档。
 
+## 2026-06-27 Claude Code 最终实现提示词 - 阶段6完成
+
+- 引用详情页 `pages/citation/detail` 使用真实 `GET /api/v1/qa/sessions/{id}/messages/{id}/citations` 接口。
+- 403 权限受限时，不展示完整原文，仅展示错误提示。
+- 页面只渲染实际返回字段（kb、path、updatedAt、highlight 等条件渲染）。
+- 缺失字段不使用 mock 补齐。
+- 反馈页 `pages/feedback/submit` 携带真实 question、answer 摘要、sessionId、messageId。
+- 反馈映射使用 adapters 中的 `mapFeedbackReason`，将6种细分原因转为 API 支持的 like/dislike/no_citation。
+- 防止重复提交（submitting 标志）。
+- 问答页每条消息独立管理 citationExpanded 和 feedbackStatus。
+- 复制答案使用当前消息 content。
+- JS 语法、JSON 解析和单元测试全部通过。
+
 ## 2026-06-27 Claude Code 最终实现提示词 - 阶段5完成
 
 - 问答页默认使用 SSE 流式问答（`querySSE`），通过 `wx.request` 的 `enableChunked` 能力实现 POST SSE。

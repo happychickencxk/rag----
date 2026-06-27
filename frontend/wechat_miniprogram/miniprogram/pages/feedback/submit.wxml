@@ -4,11 +4,11 @@
   <view class="summary card">
     <view class="field">
       <view class="label">原问题</view>
-      <view class="value">试用期请假是否影响转正？</view>
+      <view class="value">{{question || '--'}}</view>
     </view>
     <view class="field border">
       <view class="label">AI 回答摘要</view>
-      <view class="value muted">根据人事制度库的规定，试用期请假不会直接影响转正，但需注意累计天数及规范流程...</view>
+      <view class="value muted">{{answer ? answer.slice(0, 120) + (answer.length > 120 ? '...' : '') : '--'}}</view>
     </view>
   </view>
 
@@ -22,11 +22,13 @@
 
   <view class="section card">
     <view class="section-title">补充说明 <text class="optional">选填</text></view>
-    <textarea class="note" value="{{note}}" maxlength="200" placeholder="请描述具体问题，帮助我们改善回答质量..." bindinput="onNoteInput"></textarea>
+    <textarea class="note" value="{{note}}" maxlength="200" placeholder="请描述具体问题，帮助我们改善回答质量..." bindinput="onNoteInput" disabled="{{submitting}}"></textarea>
     <view class="counter">{{note.length}}/200</view>
   </view>
 
-  <button class="submit {{hasNote ? 'enabled' : ''}}" bindtap="submit">提交反馈</button>
+  <button class="submit {{hasNote ? 'enabled' : ''}}" bindtap="submit" disabled="{{submitting}}">
+    {{submitting ? '提交中...' : '提交反馈'}}
+  </button>
 </view>
 
 <view class="page success-page" wx:else>

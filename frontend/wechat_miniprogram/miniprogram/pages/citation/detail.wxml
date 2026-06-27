@@ -1,50 +1,76 @@
 <custom-nav title="引用来源" back="{{true}}" />
 
 <view class="page citation-page">
-  <view class="doc-card card">
-    <view class="doc-title-row">
-      <image class="doc-source-icon" src="/images/icons/source.png" mode="aspectFit" />
-      <view class="doc-title">{{citation.title}}</view>
-    </view>
-    <view class="doc-meta">所属：{{citation.kb}}</view>
-    <view class="doc-meta">章节：{{citation.path}}</view>
-    <view class="doc-meta">更新：{{citation.updatedAt}}</view>
-    <view class="permission {{citation.permitted ? 'ok' : 'limited'}}">{{citation.permitted ? "已授权" : "权限受限"}}</view>
+  <!-- 加载中 -->
+  <view class="state-box" wx:if="{{status === 'loading'}}">
+    <view class="state-spinner"></view>
+    <text class="state-text">加载中...</text>
   </view>
 
-  <view class="score-card card">
-    <view class="score-item">
-      <view class="score-value">{{citation.similarity}}</view>
-      <view class="score-label">相似度</view>
-    </view>
-    <view class="score-item">
-      <view class="score-value">{{citation.rerank}}</view>
-      <view class="score-label">Rerank</view>
-    </view>
+  <!-- 错误状态 -->
+  <view class="state-box" wx:elif="{{status === 'error'}}">
+    <image class="state-icon" src="/images/icons/warning-circle.png" mode="aspectFit" />
+    <view class="state-title">加载失败</view>
+    <view class="state-desc">{{errorMsg}}</view>
   </view>
 
-  <view class="content-card card">
-    <view class="section-title">原文片段</view>
-    <view class="highlight">{{citation.highlight}}</view>
-    <view class="excerpt {{expanded ? '' : 'clamp'}}">{{citation.excerpt}}</view>
-    <view class="expand-btn" bindtap="toggleText">
-      <text>{{expanded ? "收起片段" : "展开完整片段"}}</text>
-      <view class="expand-chevron {{expanded ? 'is-expanded' : ''}}"></view>
-    </view>
-    <view class="limited-tip" wx:if="{{!citation.permitted}}">
-      <image class="limited-icon" src="/images/icons/no-permission.png" mode="aspectFit" />
-      <text>该文档片段受权限保护，仅可查看摘要。</text>
-    </view>
+  <!-- 权限受限 -->
+  <view class="state-box" wx:elif="{{status === 'forbidden'}}">
+    <image class="state-icon forbidden-icon" src="/images/icons/no-permission.png" mode="aspectFit" />
+    <view class="state-title">权限受限</view>
+    <view class="state-desc">{{errorMsg}}</view>
   </view>
 
-  <view class="action-bar">
-    <button class="action primary" bindtap="copyCitation">
-      <image class="action-icon copy-action-icon" src="/images/icons/copy.png" mode="aspectFit" />
-      <text>复制引用</text>
-    </button>
-    <button class="action" bindtap="feedback">
-      <image class="action-icon" src="/images/icons/feedback.png" mode="aspectFit" />
-      <text>反馈引用错误</text>
-    </button>
-  </view>
+  <!-- 引用详情 -->
+  <block wx:else>
+    <view class="doc-card card">
+      <view class="doc-title-row">
+        <image class="doc-source-icon" src="/images/icons/source.png" mode="aspectFit" />
+        <view class="doc-title">{{citation.title}}</view>
+      </view>
+      <view class="doc-meta" wx:if="{{citation.kb}}">所属：{{citation.kb}}</view>
+      <view class="doc-meta" wx:if="{{citation.path}}">章节：{{citation.path}}</view>
+      <view class="doc-meta" wx:if="{{citation.updatedAt}}">更新：{{citation.updatedAt}}</view>
+      <view class="permission {{citation.permitted ? 'ok' : 'limited'}}">{{citation.permitted ? "已授权" : "权限受限"}}</view>
+    </view>
+
+    <view class="score-card card" wx:if="{{citation.similarity || citation.rerank}}">
+      <view class="score-item" wx:if="{{citation.similarity}}">
+        <view class="score-value">{{citation.similarity}}</view>
+        <view class="score-label">相似度</view>
+      </view>
+      <view class="score-item" wx:if="{{citation.rerank}}">
+        <view class="score-value">{{citation.rerank}}</view>
+        <view class="score-label">Rerank</view>
+      </view>
+    </view>
+
+    <view class="content-card card">
+      <view class="section-title">原文片段</view>
+      <view class="highlight" wx:if="{{citation.highlight}}">{{citation.highlight}}</view>
+      <!-- 权限受限时隐藏原文 -->
+      <view wx:if="{{citation.permitted}}">
+        <view class="excerpt {{expanded ? '' : 'clamp'}}">{{citation.excerpt}}</view>
+        <view class="expand-btn" bindtap="toggleText" wx:if="{{citation.excerpt}}">
+          <text>{{expanded ? "收起片段" : "展开完整片段"}}</text>
+          <view class="expand-chevron {{expanded ? 'is-expanded' : ''}}"></view>
+        </view>
+      </view>
+      <view class="limited-tip" wx:if="{{!citation.permitted}}">
+        <image class="limited-icon" src="/images/icons/no-permission.png" mode="aspectFit" />
+        <text>该文档片段受权限保护，无法查看完整原文。</text>
+      </view>
+    </view>
+
+    <view class="action-bar">
+      <button class="action primary" bindtap="copyCitation">
+        <image class="action-icon copy-action-icon" src="/images/icons/copy.png" mode="aspectFit" />
+        <text>复制引用</text>
+      </button>
+      <button class="action" bindtap="feedback">
+        <image class="action-icon" src="/images/icons/feedback.png" mode="aspectFit" />
+        <text>反馈引用错误</text>
+      </button>
+    </view>
+  </block>
 </view>
