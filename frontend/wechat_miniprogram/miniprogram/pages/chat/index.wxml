@@ -71,7 +71,7 @@
               <text>没用</text>
             </button>
             <button class="feedback-btn" bindtap="copyAnswer">
-              <text class="feedback-icon">▣</text>
+              <image class="feedback-image-icon" src="/images/icons/copy.png" mode="aspectFit" />
               <text>复制</text>
             </button>
             <button class="feedback-btn" bindtap="regenerate">

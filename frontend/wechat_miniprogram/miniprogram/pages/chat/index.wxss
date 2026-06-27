@@ -346,6 +346,14 @@ page {
   line-height: 1;
 }
 
+.feedback-image-icon {
+  width: 28rpx;
+  height: 28rpx;
+  display: block;
+  filter: brightness(0);
+  opacity: 0.26;
+}
+
 .input-placeholder {
   height: 140rpx;
 }
