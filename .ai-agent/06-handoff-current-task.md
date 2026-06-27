@@ -2,6 +2,14 @@
 
 > 给下一位 AI agent 使用。开始继续开发前，先读本文件，再读本目录其它文档。
 
+## 2026-06-27 Claude Code 最终实现提示词
+
+- 已新增 `10-claude-code-final-implementation-prompt.md`，用于完成全部剩余小程序前端代码、接口适配、测试、开发者工具验证和 Git 收尾。
+- 提示词要求按 8 个阶段实现并分别提交，不能用 mock 成功代替真实联调结果。
+- 提示词固定 API-Q02 的 POST SSE 方案、API-Q07 的反馈枚举、引用权限保护和文件下载阻塞处理。
+- Claude Code 完成后必须新增 `11-api-compliance-checklist.md`，逐接口记录代码位置、字段映射、错误处理、测试和真实联调状态。
+- 当前仓库没有后端源码；后端基础地址或接口不可用时，必须记录为阻塞，禁止猜测生产域名。
+
 ## 2026-06-27 原始需求与缺口审计
 
 - 已只读提取并核对 `docs` 下 5 份 Word 文档，形成 `08-requirements-gap-analysis.md`。

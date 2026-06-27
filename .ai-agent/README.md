@@ -13,6 +13,7 @@
 7. `07-icon-assets.md`：查看小程序图标命名、用途、颜色和引用规范。
 8. `08-requirements-gap-analysis.md`：查看原始需求、当前实现和分级缺口。
 9. `09-claude-code-implementation-prompt.md`：需要低成本代理接力时使用首批实现提示词。
+10. `10-claude-code-final-implementation-prompt.md`：交给 Claude Code 完成全部剩余实现、验证和接口验收。
 
 ## 当前事实
 
@@ -32,4 +33,5 @@
 - 图标命名、用途或颜色规则变化时更新 `07-icon-assets.md`。
 - 原始需求、当前实现状态或优先级变化时更新 `08-requirements-gap-analysis.md`。
 - Claude Code 实现批次变化时更新 `09-claude-code-implementation-prompt.md`。
+- 最终实现范围、接口验收或验证要求变化时更新 `10-claude-code-final-implementation-prompt.md`。
 - 文档更新应和对应功能代码放在同一个 commit 中；纯文档基线可以单独 commit。

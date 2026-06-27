@@ -2,6 +2,8 @@
 
 > 最近核对：2026-06-27。结论来自 `docs` 下 5 份 Word 文档和当前 `frontend/wechat_miniprogram/miniprogram` 源码，不以旧路线图代替原始需求。
 
+完整代码收尾和接口验收任务使用 `10-claude-code-final-implementation-prompt.md`。
+
 ## 范围结论
 
 本仓库只负责微信小程序前端。小程序的核心验收链路是：
@@ -172,4 +174,3 @@
 3. 知识库列表真实接口与 mock/real 数据源切换。
 4. 非流式问答、会话创建和消息追加。
 5. 修复受限引用原文泄露，并把异常状态接入问答页。
-
