@@ -4,6 +4,35 @@
   background: #f7f8fa;
 }
 
+/* 知识库指示 */
+.kb-indicator {
+  display: flex;
+  align-items: center;
+  padding: 18rpx 24rpx;
+  margin-bottom: 20rpx;
+  background: #ffffff;
+  border-radius: 12rpx;
+  border: 1rpx solid #ededed;
+  font-size: 26rpx;
+}
+
+.kb-label {
+  color: #888888;
+}
+
+.kb-value {
+  color: #1a1a1a;
+  font-weight: 600;
+  margin: 0 12rpx;
+}
+
+.kb-change {
+  margin-left: auto;
+  color: #1677ff;
+  font-size: 24rpx;
+}
+
+/* 上传区域 */
 .upload-section {
   min-height: 156rpx;
   padding: 28rpx;
@@ -61,9 +90,9 @@
   line-height: 64rpx;
   text-align: center;
   flex: 0 0 auto;
-  transition: background-color 200ms ease, opacity 200ms ease;
 }
 
+/* 文件区域 */
 .file-section {
   margin-top: 24rpx;
   background: #ffffff;
@@ -96,7 +125,7 @@
   min-height: 118rpx;
   padding: 22rpx 24rpx;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   border-bottom: 1rpx solid #ededed;
 }
 
@@ -139,21 +168,190 @@
   font-size: 22rpx;
 }
 
-.download-button {
-  width: 104rpx;
-  height: 56rpx;
-  margin-left: 18rpx;
-  border-radius: 12rpx;
-  background: #f5f5f5;
-  color: #bdbdbd;
+.file-error {
+  margin-top: 8rpx;
+  color: #ef4444;
   font-size: 22rpx;
-  line-height: 56rpx;
-  text-align: center;
-  flex: 0 0 104rpx;
-  transition: color 200ms ease, background-color 200ms ease;
 }
 
-.download-button.is-ready {
+/* 文件状态区域 */
+.file-status-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-left: 14rpx;
+  gap: 8rpx;
+}
+
+.file-status {
+  font-size: 22rpx;
+  padding: 4rpx 10rpx;
+  border-radius: 6rpx;
+}
+
+.status-pending {
+  color: #888888;
+  background: #f5f5f5;
+}
+
+.status-uploading {
   color: #1677ff;
   background: #e6f0ff;
+}
+
+.status-success {
+  color: #10b981;
+  background: #ecfdf5;
+}
+
+.status-failed {
+  color: #ef4444;
+  background: #fff1f1;
+}
+
+.file-action-link {
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.retry-link {
+  color: #ef4444;
+}
+
+.download-link {
+  color: #1677ff;
+}
+
+/* 空状态 */
+.empty {
+  margin-top: 48rpx;
+  padding: 80rpx 48rpx;
+  text-align: center;
+}
+
+.empty-icon {
+  width: 96rpx;
+  height: 96rpx;
+  margin-bottom: 24rpx;
+  filter: brightness(0);
+  opacity: 0.16;
+}
+
+.empty-text {
+  color: #1a1a1a;
+  font-size: 30rpx;
+  font-weight: 700;
+  display: block;
+}
+
+.empty-hint {
+  margin-top: 12rpx;
+  color: #888888;
+  font-size: 26rpx;
+  display: block;
+}
+
+/* KB 选择弹层 */
+.sheet-mask {
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 999;
+  background: rgba(0, 0, 0, 0.42);
+  display: flex;
+  align-items: flex-end;
+}
+
+.kb-sheet {
+  width: 100%;
+  max-height: 60vh;
+  background: #ffffff;
+  border-radius: 32rpx 32rpx 0 0;
+  overflow: hidden;
+}
+
+.sheet-handle {
+  width: 72rpx;
+  height: 8rpx;
+  margin: 22rpx auto 16rpx;
+  border-radius: 8rpx;
+  background: #ededed;
+}
+
+.sheet-head {
+  height: 72rpx;
+  padding: 0 20rpx 0 44rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid #ededed;
+}
+
+.sheet-title {
+  color: #1a1a1a;
+  font-size: 34rpx;
+  font-weight: 700;
+}
+
+.sheet-close {
+  width: 48rpx;
+  height: 48rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheet-close-icon {
+  width: 30rpx;
+  height: 30rpx;
+  filter: brightness(0);
+  opacity: 0.46;
+}
+
+.sheet-list {
+  max-height: calc(60vh - 118rpx);
+}
+
+.sheet-kb-cell {
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 100rpx;
+  padding: 26rpx 34rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1rpx solid #ededed;
+}
+
+.sheet-kb-cell.is-disabled {
+  opacity: 0.45;
+}
+
+.sheet-kb-name {
+  flex: 1;
+  min-width: 0;
+  color: #1a1a1a;
+  font-size: 30rpx;
+  font-weight: 600;
+}
+
+.sheet-permission-tag {
+  margin-left: 16rpx;
+  padding: 4rpx 12rpx;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.sheet-permission-tag.granted {
+  color: #10b981;
+  background: #ecfdf5;
+}
+
+.sheet-permission-tag.denied {
+  color: #ff7a7a;
+  background: #fff1f1;
 }

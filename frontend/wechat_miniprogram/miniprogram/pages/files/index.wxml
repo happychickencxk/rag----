@@ -1,18 +1,27 @@
 <custom-nav title="文件中心" back="{{true}}" />
 
 <view class="page files-page">
-  <view class="upload-section">
+  <!-- 当前知识库信息 -->
+  <view class="kb-indicator">
+    <text class="kb-label">目标知识库：</text>
+    <text class="kb-value">{{selectedKbName || '未选择'}}</text>
+    <text class="kb-change" bindtap="chooseFile">切换</text>
+  </view>
+
+  <!-- 上传区域 -->
+  <view class="upload-section" bindtap="chooseFile">
     <view class="upload-visual">
       <image class="upload-visual-icon" src="/images/icons/upload-file.png" mode="aspectFit" />
     </view>
     <view class="upload-content">
       <view class="upload-title">上传知识文件</view>
-      <view class="upload-meta">PDF、Word、Excel、PPT，单个文件不超过 20 MB</view>
+      <view class="upload-meta">支持 PDF、DOCX、MD、TXT、HTML、CSV，单文件最大 20MB</view>
     </view>
-    <button class="choose-button" bindtap="chooseFile">选择文件</button>
+    <button class="choose-button">选择文件</button>
   </view>
 
-  <view class="file-section">
+  <!-- 文件列表 -->
+  <view class="file-section" wx:if="{{files.length}}">
     <view class="section-head">
       <text class="section-title">文件列表</text>
       <text class="section-count">{{files.length}} 个文件</text>
@@ -25,13 +34,57 @@
         <view class="file-info">
           <view class="file-name one-line">{{item.name}}</view>
           <view class="file-meta one-line">{{item.meta}}</view>
+          <view class="file-error" wx:if="{{item.errorMsg}}">{{item.errorMsg}}</view>
         </view>
-        <button
-          class="download-button {{item.status === '可下载' ? 'is-ready' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="downloadFile"
-        >{{item.status}}</button>
+        <!-- 状态和操作 -->
+        <view class="file-status-area">
+          <text class="file-status status-{{item.status}}">{{item.statusText}}</text>
+          <text
+            wx:if="{{item.status === 'failed'}}"
+            class="file-action-link retry-link"
+            data-id="{{item.id}}"
+            bindtap="retryUpload"
+          >重试</text>
+          <text
+            wx:elif="{{item.status === 'success'}}"
+            class="file-action-link download-link"
+            data-id="{{item.id}}"
+            bindtap="downloadFile"
+          >下载</text>
+        </view>
       </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty" wx:if="{{!files.length}}">
+    <image class="empty-icon" src="/images/icons/upload-file.png" mode="aspectFit" />
+    <text class="empty-text">暂无上传文件</text>
+    <text class="empty-hint">点击上方区域选择文件上传到当前知识库</text>
+  </view>
+
+  <!-- 知识库选择弹层 -->
+  <view wx:if="{{showKbPicker}}" class="sheet-mask" catchtap="closeKbPicker">
+    <view class="kb-sheet" catchtap="noop">
+      <view class="sheet-handle"></view>
+      <view class="sheet-head">
+        <text class="sheet-title">选择目标知识库</text>
+        <button class="sheet-close" bindtap="closeKbPicker" aria-label="关闭">
+          <image class="sheet-close-icon" src="/images/icons/close.png" mode="aspectFit" />
+        </button>
+      </view>
+      <scroll-view class="sheet-list" scroll-y>
+        <view
+          class="sheet-kb-cell {{item.permission === 'denied' ? 'is-disabled' : ''}}"
+          wx:for="{{knowledgeBases}}"
+          wx:key="id"
+          data-id="{{item.id}}"
+          bindtap="selectKbForUpload"
+        >
+          <text class="sheet-kb-name one-line">{{item.name}}</text>
+          <text class="sheet-permission-tag {{item.permission}}">{{item.permissionText}}</text>
+        </view>
+      </scroll-view>
     </view>
   </view>
 </view>
