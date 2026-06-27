@@ -11,6 +11,8 @@
 5. `04-development-workflow.md`：遵守中文文档、git、测试和更新流程。
 6. `05-roadmap.md`：按优先级推进后续前端工作。
 7. `07-icon-assets.md`：查看小程序图标命名、用途、颜色和引用规范。
+8. `08-requirements-gap-analysis.md`：查看原始需求、当前实现和分级缺口。
+9. `09-claude-code-implementation-prompt.md`：需要低成本代理接力时使用首批实现提示词。
 
 ## 当前事实
 
@@ -28,4 +30,6 @@
 - 里程碑、优先级或任务拆分变化时更新 `05-roadmap.md`。
 - 当前任务状态、已知风险或接力说明变化时更新 `06-handoff-current-task.md`。
 - 图标命名、用途或颜色规则变化时更新 `07-icon-assets.md`。
+- 原始需求、当前实现状态或优先级变化时更新 `08-requirements-gap-analysis.md`。
+- Claude Code 实现批次变化时更新 `09-claude-code-implementation-prompt.md`。
 - 文档更新应和对应功能代码放在同一个 commit 中；纯文档基线可以单独 commit。

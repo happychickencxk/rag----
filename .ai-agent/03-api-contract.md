@@ -6,6 +6,15 @@
 
 ## 通用规范
 
+### 基础地址拼接规则
+
+原接口文档同时把 `/api/v1` 写入基础 URL 和具体接口路径。前端只能选择一种形式：
+
+- 推荐：`API_ORIGIN=http://localhost:8000`，请求路径使用 `/api/v1/auth/...`。
+- 或者：`API_BASE_URL=http://localhost:8000/api/v1`，请求路径使用 `/auth/...`。
+
+禁止把两者直接拼接成 `/api/v1/api/v1/...`。
+
 基础 URL：
 
 - 开发环境：`http://localhost:8000/api/v1`
@@ -244,3 +253,13 @@ data: {"content": "", "done": true, "citations": [], "message_id": "xxx"}
 | `SensitiveBlocked` | 后端拦截敏感问题 |
 | `EmptyHistory` | 会话列表为空 |
 | `EmptyKnowledgeBase` | 无可访问知识库 |
+
+## 对接前必须确认的差异
+
+- 概要设计同时提到 WebSocket 和 SSE；API-Q02 明确规定 `POST /api/v1/qa/query` 返回 SSE，小程序首版以 API-Q02 为准。
+- 消息反馈接口 API-Q07 只列出 `like`、`dislike`、`no_citation`，但反馈对象定义还出现 `correction`。现有反馈页六种细分原因没有明确字段，需后端确认。
+- 知识库列表说明普通用户只返回有权限的记录，当前 UI 却展示“无访问权限”条目。若保留该设计，响应需要增加可见但不可访问记录及权限字段。
+- 引用详情响应缺少知识库名称、更新时间、授权状态和命中高亮，无法直接驱动现有引用详情页。
+- 文档上传仅支持 `pdf/docx/md/txt/html/csv`，不包含当前文件页展示的 Excel 和 PPT。
+- 文档接口没有面向小程序的安全下载 URL，不能直接使用服务端 `storage_path`。
+- API 文档中主要接口的完成情况均为“待开发”，真实联调前必须确认后端地址和可用接口清单。
