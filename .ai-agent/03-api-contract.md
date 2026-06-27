@@ -232,13 +232,24 @@ data: {"content": "", "done": true, "citations": [], "message_id": "xxx"}
 
 `POST /api/v1/qa/sessions/{sessionId}/messages/{messageId}/feedback`
 
-反馈类型枚举：
+反馈类型枚举（API-Q07 确认）：
 
 - `like`：点赞。
 - `dislike`：点踩。
-- `correction`：纠错。
+- `no_citation`：无引用。
 
-小程序端 UI 可扩展为更细的纠错原因，例如答案不正确、引用错误、没有引用、答案不完整、展示了无权限内容、其他。提交前端细分原因时，应放入描述字段或后续与后端确认字段扩展。
+**2026-06-27 前端映射决策**：API-Q07 只保证 like、dislike、no_citation 三种类型，不发送未确认的 correction。小程序端六种细分原因映射如下（集中在 `adapters/index.js` 的 `mapFeedbackReason`）：
+
+| UI 细分原因 | API feedback_type | description 前缀 |
+| --- | --- | --- |
+| 没有引用 | `no_citation` | （无前缀） |
+| 答案不正确 | `dislike` | `[答案不正确]` |
+| 引用错误 | `dislike` | `[引用错误]` |
+| 答案不完整 | `dislike` | `[答案不完整]` |
+| 无权限但展示了敏感内容 | `dislike` | `[敏感内容]` |
+| 其他 | `dislike` | `[其他]` |
+
+**原文档差异说明**：反馈对象定义曾出现 `correction` 枚举，但 API-Q07 确认当前仅支持 like/dislike/no_citation。如后端后续新增 correction 类型，需更新此映射。
 
 ## 前端错误状态映射
 

@@ -90,11 +90,20 @@
 - `frontend/wechat_miniprogram` 原本是云开发 QuickStart 模板，部分旧模板页面和云函数仍存在，但已从 `app.json` 页面入口移除。
 - `frontend/wechat_miniprogram` 曾带有模板自带的独立 `.git` 元数据；为便于外层仓库统一管理，本轮已移除内嵌 `.git`，源码将由根仓库跟踪。
 
+## 当前基础设施文件（2026-06-27 阶段1已建立）
+
+- `miniprogram/config/api.js`：API 地址、数据源模式和超时配置。
+- `miniprogram/utils/storage.js`：Token、用户、当前知识库和会话状态持久化。
+- `miniprogram/utils/request.js`：统一请求封装、响应解析、BusinessError、401 刷新队列。
+- `miniprogram/utils/upload.js`：wx.uploadFile 封装、Token 附加和统一响应处理。
+- `miniprogram/utils/sse.js`：纯函数 SSE 解析器，支持拆包、粘包、中文 UTF-8 边界和 done 事件。
+- `miniprogram/services/auth.js`：微信登录、Token 刷新、获取用户信息和退出登录。
+- `miniprogram/services/knowledge.js`：知识库列表和详情查询。
+- `miniprogram/services/qa.js`：非流式问答、SSE 流式问答、会话管理和反馈提交。
+- `miniprogram/services/document.js`：文档列表和文件上传。
+- `miniprogram/adapters/index.js`：后端 snake_case 到前端视图模型的集中映射，含反馈原因映射。
+- `miniprogram/tests/unit/`：纯 Node 单元测试，覆盖 URL 规范化、响应解析、Token 刷新、SSE 解析、反馈映射、引用权限、文件校验和字段适配。
+
 ## 后续拆分建议
 
-优先补齐为：
-
-- `miniprogram/utils/api.js`：请求封装、鉴权头、错误处理。
-- `miniprogram/utils/auth.js`：微信登录、token 保存、刷新。
-- `miniprogram/utils/sse.js`：问答流式输出适配。
 - 可复用组件目录：引用卡片、反馈栏、空状态、异常状态卡片。
