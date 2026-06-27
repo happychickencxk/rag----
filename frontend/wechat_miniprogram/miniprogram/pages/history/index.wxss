@@ -1,7 +1,3 @@
-page {
-  background: #f7f8fa;
-}
-
 .history-page {
   min-height: 100vh;
   background: #f7f8fa;
@@ -23,15 +19,15 @@ page {
 }
 
 .search-icon {
-  width: 34rpx;
+  width: 30rpx;
+  height: 30rpx;
   margin-right: 12rpx;
-  color: #bdbdbd;
-  font-size: 34rpx;
-  line-height: 1;
-  flex: 0 0 34rpx;
+  flex: 0 0 30rpx;
+  filter: brightness(0);
+  opacity: 0.26;
 }
 
-.search-box input {
+.search-input {
   flex: 1;
   min-width: 0;
   color: #1a1a1a;
@@ -80,25 +76,10 @@ page {
   flex: 0 0 78rpx;
 }
 
-.bubble-icon {
-  width: 30rpx;
-  height: 26rpx;
-  border: 4rpx solid #3478ff;
-  border-radius: 5rpx;
-  position: relative;
-}
-
-.bubble-icon::after {
-  content: "";
-  position: absolute;
-  left: 4rpx;
-  bottom: -10rpx;
-  width: 10rpx;
-  height: 10rpx;
-  border-left: 4rpx solid #3478ff;
-  border-bottom: 4rpx solid #3478ff;
-  background: #e6f0ff;
-  transform: skewY(-30deg);
+.session-icon-image {
+  width: 42rpx;
+  height: 42rpx;
+  filter: brightness(0) saturate(100%) invert(39%) sepia(97%) saturate(2816%) hue-rotate(204deg) brightness(100%) contrast(104%);
 }
 
 .session-body {
@@ -186,6 +167,14 @@ page {
   padding: 80rpx 24rpx;
   background: #ffffff;
   text-align: center;
+}
+
+.empty-icon {
+  width: 80rpx;
+  height: 80rpx;
+  margin-bottom: 20rpx;
+  filter: brightness(0);
+  opacity: 0.16;
 }
 
 .empty-title {

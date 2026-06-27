@@ -24,26 +24,26 @@
       {
         "pagePath": "pages/chat/index",
         "text": "问答",
-        "iconPath": "images/icons/home.png",
-        "selectedIconPath": "images/icons/home-active.png"
+        "iconPath": "images/icons/ai-assistant.png",
+        "selectedIconPath": "images/icons/ai-assistant.png"
       },
       {
         "pagePath": "pages/knowledge/index",
         "text": "知识库",
-        "iconPath": "images/icons/business.png",
-        "selectedIconPath": "images/icons/business-active.png"
+        "iconPath": "images/icons/knowledge-base.png",
+        "selectedIconPath": "images/icons/knowledge-base.png"
       },
       {
         "pagePath": "pages/history/index",
         "text": "历史",
-        "iconPath": "images/icons/examples.png",
-        "selectedIconPath": "images/icons/examples-active.png"
+        "iconPath": "images/icons/history.png",
+        "selectedIconPath": "images/icons/history.png"
       },
       {
         "pagePath": "pages/profile/index",
         "text": "我的",
-        "iconPath": "images/icons/usercenter.png",
-        "selectedIconPath": "images/icons/usercenter-active.png"
+        "iconPath": "images/icons/profile.png",
+        "selectedIconPath": "images/icons/profile.png"
       }
     ]
   },

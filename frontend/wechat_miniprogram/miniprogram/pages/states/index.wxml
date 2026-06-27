@@ -1,6 +1,8 @@
 <view class="page states-page">
   <view class="state-card card {{item.type}}" wx:for="{{statusCards}}" wx:key="type">
-    <view class="state-icon">{{index + 1}}</view>
+    <view class="state-icon">
+      <image class="state-icon-image" src="{{item.icon}}" mode="aspectFit" />
+    </view>
     <view>
       <view class="state-title">{{item.title}}</view>
       <view class="state-desc">{{item.desc}}</view>

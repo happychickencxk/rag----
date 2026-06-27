@@ -166,15 +166,15 @@ const sessions = [
 ];
 
 const statusCards = [
-  { type: "loading", title: "AI 正在检索企业知识库", desc: "正在匹配可访问文档片段，请稍候。" },
-  { type: "streaming", title: "正在基于知识库生成回答", desc: "已找到相关引用，正在流式输出。" },
-  { type: "no-evidence", title: "未找到足够依据", desc: "建议换一种问法或切换知识库。" },
-  { type: "low-confidence", title: "回答置信度较低", desc: "请结合引用来源人工确认。" },
-  { type: "no-permission", title: "无访问权限", desc: "你无权访问该知识库或文档片段。" },
-  { type: "timeout", title: "模型服务响应超时", desc: "可稍后重试。" },
-  { type: "blocked", title: "内容已拦截", desc: "问题包含敏感内容，系统已拦截。" },
-  { type: "empty-history", title: "暂无历史会话", desc: "去提问后记录会展示在这里。" },
-  { type: "empty-kb", title: "暂无可访问知识库", desc: "请联系管理员配置权限。" },
+  { type: "loading", icon: "/images/icons/regenerate.png", title: "AI 正在检索企业知识库", desc: "正在匹配可访问文档片段，请稍候。" },
+  { type: "streaming", icon: "/images/icons/ai-assistant.png", title: "正在基于知识库生成回答", desc: "已找到相关引用，正在流式输出。" },
+  { type: "no-evidence", icon: "/images/icons/warning-triangle.png", title: "未找到足够依据", desc: "建议换一种问法或切换知识库。" },
+  { type: "low-confidence", icon: "/images/icons/warning-circle.png", title: "回答置信度较低", desc: "请结合引用来源人工确认。" },
+  { type: "no-permission", icon: "/images/icons/no-permission.png", title: "无访问权限", desc: "你无权访问该知识库或文档片段。" },
+  { type: "timeout", icon: "/images/icons/timeout.png", title: "模型服务响应超时", desc: "可稍后重试。" },
+  { type: "blocked", icon: "/images/icons/blocked.png", title: "内容已拦截", desc: "问题包含敏感内容，系统已拦截。" },
+  { type: "empty-history", icon: "/images/icons/history.png", title: "暂无历史会话", desc: "去提问后记录会展示在这里。" },
+  { type: "empty-kb", icon: "/images/icons/knowledge-base.png", title: "暂无可访问知识库", desc: "请联系管理员配置权限。" },
 ];
 
 function findKnowledgeBase(id) {

@@ -1,6 +1,6 @@
 <view class="page profile-page">
   <view class="user-card">
-    <view class="avatar">张</view>
+    <image class="avatar" src="/images/icons/avatar.png" mode="aspectFill" />
     <view>
       <view class="user-name">{{user.name}}</view>
       <view class="user-role">{{user.department}} · {{user.role}}</view>
@@ -31,10 +31,34 @@
   </view>
 
   <view class="section card">
-    <button class="setting-cell" bindtap="clearHistory">清空历史会话</button>
-    <button class="setting-cell">消息通知</button>
-    <button class="setting-cell" bindtap="openStates">异常状态预览</button>
-    <button class="setting-cell">关于系统</button>
+    <button class="setting-cell" bindtap="clearHistory">
+      <view class="setting-main">
+        <image class="setting-icon" src="/images/icons/clear-history.png" mode="aspectFit" />
+        <text>清空历史会话</text>
+      </view>
+      <text class="setting-arrow">›</text>
+    </button>
+    <button class="setting-cell">
+      <view class="setting-main">
+        <image class="setting-icon" src="/images/icons/notification.png" mode="aspectFit" />
+        <text>消息通知</text>
+      </view>
+      <text class="setting-arrow">›</text>
+    </button>
+    <button class="setting-cell warning-setting" bindtap="openStates">
+      <view class="setting-main">
+        <image class="setting-icon" src="/images/icons/warning-circle.png" mode="aspectFit" />
+        <text>异常状态预览</text>
+      </view>
+      <text class="setting-arrow">›</text>
+    </button>
+    <button class="setting-cell">
+      <view class="setting-main">
+        <image class="setting-icon" src="/images/icons/about.png" mode="aspectFit" />
+        <text>关于系统</text>
+      </view>
+      <text class="setting-arrow">›</text>
+    </button>
   </view>
 
   <button class="logout" bindtap="logout">退出登录</button>

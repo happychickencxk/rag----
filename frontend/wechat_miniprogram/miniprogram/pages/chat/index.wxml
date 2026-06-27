@@ -2,8 +2,7 @@
   <view class="kb-strip" bindtap="openKnowledge">
     <view class="kb-left">
       <view class="kb-icon">
-        <view class="book-line"></view>
-        <view class="book-line short"></view>
+        <image class="kb-icon-image" src="/images/icons/knowledge-base.png" mode="aspectFit" />
       </view>
       <text class="kb-name">{{selectedKb.name}}</text>
       <text class="kb-status">已连接</text>
@@ -21,9 +20,14 @@
       </view>
 
       <view wx:if="{{item.role === 'assistant'}}" class="message-row ai-row">
-        <view class="ai-avatar">✦</view>
+        <view class="ai-avatar">
+          <image class="ai-avatar-image" src="/images/icons/ai-assistant.png" mode="aspectFit" />
+        </view>
         <view class="ai-card">
-          <view class="low-confidence" wx:if="{{item.lowConfidence}}">回答置信度较低，请结合引用来源人工确认。</view>
+          <view class="low-confidence" wx:if="{{item.lowConfidence}}">
+            <image class="low-confidence-icon" src="/images/icons/warning-triangle.png" mode="aspectFit" />
+            <text>回答置信度较低，请结合引用来源人工确认。</text>
+          </view>
 
           <view class="answer-content" wx:if="{{item.paragraphs}}">
             <view class="answer-paragraph" wx:for="{{item.paragraphs}}" wx:for-item="paragraph" wx:key="id">
@@ -40,7 +44,7 @@
           <view class="citation-card" wx:if="{{item.citations.length}}">
             <button class="citation-header" bindtap="toggleCitations">
               <view class="citation-title">
-                <text class="file-icon">▤</text>
+                <image class="source-icon" src="/images/icons/source.png" mode="aspectFit" />
                 <text>查看来源</text>
                 <text class="citation-count">{{item.citations.length}}</text>
               </view>
@@ -63,23 +67,23 @@
 
           <view class="feedback-bar">
             <button class="feedback-btn {{feedbackValue === 'like' ? 'active' : ''}}" data-value="like" bindtap="markHelpful">
-              <text class="feedback-icon">△</text>
+              <image class="feedback-action-icon" src="/images/icons/thumb-up.png" mode="aspectFit" />
               <text>有用</text>
             </button>
             <button class="feedback-btn {{feedbackValue === 'dislike' ? 'danger' : ''}}" data-value="dislike" bindtap="markHelpful">
-              <text class="feedback-icon">▽</text>
+              <image class="feedback-action-icon thumb-down-icon" src="/images/icons/thumb-up.png" mode="aspectFit" />
               <text>没用</text>
             </button>
             <button class="feedback-btn" bindtap="copyAnswer">
-              <image class="feedback-image-icon" src="/images/icons/copy.png" mode="aspectFit" />
+              <image class="feedback-action-icon" src="/images/icons/copy.png" mode="aspectFit" />
               <text>复制</text>
             </button>
             <button class="feedback-btn" bindtap="regenerate">
-              <text class="feedback-icon">↻</text>
+              <image class="feedback-action-icon" src="/images/icons/regenerate.png" mode="aspectFit" />
               <text>重新生成</text>
             </button>
             <button class="feedback-btn" bindtap="submitFeedback">
-              <text class="feedback-icon">⚐</text>
+              <image class="feedback-action-icon" src="/images/icons/feedback.png" mode="aspectFit" />
               <text>纠错</text>
             </button>
           </view>
@@ -91,11 +95,7 @@
   <view class="input-placeholder"></view>
   <view class="question-bar safe-bottom">
     <button class="voice-btn" bindtap="voiceInput" aria-label="语音输入">
-      <view class="mic-icon">
-        <view class="mic-head"></view>
-        <view class="mic-stem"></view>
-        <view class="mic-base"></view>
-      </view>
+      <image class="voice-icon" src="/images/icons/voice.png" mode="aspectFit" />
     </button>
     <view class="input-shell">
       <textarea
@@ -109,7 +109,7 @@
       ></textarea>
     </view>
     <button class="send-btn {{question ? 'enabled' : ''}}" bindtap="onSend" aria-label="发送">
-      <view class="send-plane"></view>
+      <image class="send-icon" src="/images/icons/send-message.png" mode="aspectFit" />
     </button>
   </view>
 
@@ -118,7 +118,9 @@
       <view class="sheet-handle"></view>
       <view class="sheet-head">
         <text class="sheet-title">选择知识库</text>
-        <button class="sheet-close" bindtap="closeKbSheet">×</button>
+        <button class="sheet-close" bindtap="closeKbSheet" aria-label="关闭">
+          <image class="sheet-close-icon" src="/images/icons/close.png" mode="aspectFit" />
+        </button>
       </view>
       <scroll-view class="sheet-list" scroll-y>
         <view
@@ -128,7 +130,13 @@
           data-id="{{item.id}}"
           bindtap="selectKbFromSheet"
         >
-          <view class="sheet-kb-icon {{item.permission === 'denied' ? 'locked' : ''}}"></view>
+          <view class="sheet-kb-icon {{item.permission === 'denied' ? 'locked' : ''}}">
+            <image
+              class="sheet-kb-image"
+              src="{{item.permission === 'denied' ? '/images/icons/no-permission.png' : '/images/icons/knowledge-base.png'}}"
+              mode="aspectFit"
+            />
+          </view>
           <view class="sheet-kb-content">
             <view class="sheet-kb-title-row">
               <text class="sheet-kb-title one-line">{{item.name}}</text>

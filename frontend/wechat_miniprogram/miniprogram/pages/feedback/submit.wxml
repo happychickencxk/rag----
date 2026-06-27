@@ -11,7 +11,7 @@
   </view>
 
   <view class="section card">
-    <view class="section-title">反馈类型 <text>*</text></view>
+    <view class="section-title">反馈类型 <text class="required-mark">*</text></view>
     <button class="radio-row" wx:for="{{options}}" wx:key="*this" data-value="{{item}}" bindtap="selectType">
       <view class="radio {{selected === item ? 'checked' : ''}}"></view>
       <text class="{{selected === item ? 'active' : ''}}">{{item}}</text>
