@@ -191,30 +191,36 @@ Page({
     this.sendQuestion(question);
   },
 
-  // ===== 发送问题（非流式） =====
+  // ===== 发送问题 =====
 
+  /**
+   * 默认使用 SSE 流式问答，fallback 时可用 sendQuestionNonStreaming。
+   */
   async sendQuestion(question) {
     if (this.data.sending) return;
 
-    const app = getApp();
     const kbId = this.data.selectedKb ? this.data.selectedKb.id : "";
     if (!kbId) {
       wx.showToast({ title: "请先选择知识库", icon: "none" });
       return;
     }
 
-    // 添加用户消息
+    // 取消上一个流式请求
+    if (this.data.streamTask) {
+      this.data.streamTask.abort();
+    }
+
     const userMsg = {
       id: `u-${Date.now()}`,
       role: "user",
       text: question,
     };
-    // 添加加载中的 assistant 占位
+    const loadingId = `a-stream-${Date.now()}`;
     const loadingMsg = {
-      id: `a-loading-${Date.now()}`,
+      id: loadingId,
       role: "assistant",
       text: "",
-      loading: true,
+      streaming: true,
     };
 
     this.setData({
@@ -223,6 +229,8 @@ Page({
       messages: [...this.data.messages, userMsg, loadingMsg],
     });
     wx.pageScrollTo({ scrollTop: 9999, duration: 200 });
+
+    const app = getApp();
 
     // 确保有会话
     let sessionId = this.data.sessionId;
@@ -234,27 +242,127 @@ Page({
         app.globalData.currentSessionId = sessionId;
         app.setCurrentSession({ id: sessionId, kb_id: kbId });
       } catch (e) {
-        // 会话创建失败，替换加载消息为错误
-        this.setData({
-          sending: false,
-          messages: this.data.messages.map((m) =>
-            m.id === loadingMsg.id
-              ? { ...m, loading: false, text: "", error: true, errorMsg: "创建会话失败，请重试" }
-              : m
-          ),
-        });
+        this.setSendingError(loadingId, "创建会话失败，请重试", question);
         return;
       }
     }
 
-    try {
-      const result = await query({
-        kbId,
-        question,
-        sessionId,
-      });
+    // 记录已追加内容，避免重复
+    let streamedText = "";
 
-      // 适配回答
+    const { querySSE } = require("../../services/qa");
+    const page = this;
+    const task = querySSE({
+      kbId,
+      question,
+      sessionId,
+      onText: function (content) {
+        streamedText += content;
+        page.updateStreamMessage(loadingId, streamedText, false);
+      },
+      onDone: function (result) {
+        const adaptedCitations = (result.citations || []).map(function (c) {
+          return require("../../adapters/index").adaptCitation(c);
+        });
+        page.finalizeStreamMessage(loadingId, streamedText, result.message_id, adaptedCitations);
+      },
+      onError: function (err) {
+        console.warn("[chat] SSE 失败，回退到非流式:", err.message);
+        if (streamedText) {
+          page.finalizeStreamMessage(loadingId, streamedText, "", []);
+        } else {
+          page.setData({
+            messages: page.data.messages.filter(function (m) { return m.id !== loadingId; }),
+          });
+          page.sendQuestionNonStreaming(question, sessionId, kbId);
+        }
+      },
+    });
+
+    this.data.streamTask = task;
+  },
+
+  /**
+   * 更新流式消息的内容
+   */
+  updateStreamMessage(loadingId, text, done) {
+    const messages = this.data.messages.map((m) => {
+      if (m.id === loadingId) {
+        return {
+          ...m,
+          text,
+          streaming: !done,
+          loading: false,
+        };
+      }
+      return m;
+    });
+    this.setData({ messages });
+    // 不频繁滚动，仅在内容有显著变化时
+  },
+
+  /**
+   * 完成流式消息
+   */
+  finalizeStreamMessage(loadingId, text, messageId, citations) {
+    const messages = this.data.messages.map((m) => {
+      if (m.id === loadingId) {
+        return {
+          ...m,
+          id: messageId || m.id,
+          text,
+          streaming: false,
+          loading: false,
+          citations,
+          citationExpanded: false,
+          paragraphs: text
+            ? require("../../adapters/index").parseContentToParagraphs(text)
+            : [],
+        };
+      }
+      return m;
+    });
+    this.setData({
+      sending: false,
+      messages,
+      streamTask: null,
+    });
+    wx.pageScrollTo({ scrollTop: 9999, duration: 200 });
+  },
+
+  /**
+   * 设置发送错误状态
+   */
+  setSendingError(loadingId, errorMsg, retryQuestion) {
+    this.setData({
+      sending: false,
+      messages: this.data.messages.map((m) =>
+        m.id === loadingId
+          ? { ...m, streaming: false, loading: false, text: "", error: true, errorMsg, retryQuestion }
+          : m
+      ),
+    });
+  },
+
+  /**
+   * 非流式问答（回退路径）
+   */
+  async sendQuestionNonStreaming(question, sessionId, kbId) {
+
+    const loadingMsg = {
+      id: `a-ns-${Date.now()}`,
+      role: "assistant",
+      text: "",
+      loading: true,
+    };
+
+    this.setData({
+      sending: true,
+      messages: [...this.data.messages, loadingMsg],
+    });
+
+    try {
+      const result = await query({ kbId, question, sessionId });
       const adaptedMsg = adaptMessage({
         id: result.message_id || result.id || `a-${Date.now()}`,
         session_id: sessionId,
@@ -267,7 +375,6 @@ Page({
         created_at: new Date().toISOString(),
       });
 
-      // 替换加载消息
       this.setData({
         sending: false,
         messages: this.data.messages.map((m) =>
@@ -276,15 +383,7 @@ Page({
       });
       wx.pageScrollTo({ scrollTop: 9999, duration: 200 });
     } catch (err) {
-      const errorMsg = err.message || "请求失败";
-      this.setData({
-        sending: false,
-        messages: this.data.messages.map((m) =>
-          m.id === loadingMsg.id
-            ? { ...m, loading: false, text: "", error: true, errorMsg, retryQuestion: question }
-            : m
-        ),
-      });
+      this.setSendingError(loadingMsg.id, err.message || "请求失败", question);
     }
   },
 

@@ -738,3 +738,42 @@
 .citation-restricted {
   color: #ef4444 !important;
 }
+
+/* 流式输出指示器 */
+.streaming-indicator {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+  gap: 8rpx;
+  color: #1677ff;
+  font-size: 24rpx;
+}
+
+.streaming-dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 6rpx;
+  background: #1677ff;
+  animation: stream-dot-pulse 800ms ease-in-out infinite;
+}
+
+@keyframes stream-dot-pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* 流式文本闪烁光标 */
+.streaming-text {
+  white-space: pre-wrap;
+}
+
+.streaming-cursor {
+  display: inline;
+  color: #1677ff;
+  animation: cursor-blink 600ms step-end infinite;
+}
+
+@keyframes cursor-blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
