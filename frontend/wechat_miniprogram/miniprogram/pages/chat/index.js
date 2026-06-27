@@ -42,6 +42,36 @@ Page({
 
     // 恢复当前知识库
     this.restoreSelectedKb();
+
+    // 从历史页恢复会话消息
+    this.restoreSessionMessages();
+  },
+
+  /**
+   * 从本地存储恢复历史会话消息
+   */
+  restoreSessionMessages() {
+    const stored = storage.getCurrentSession();
+    if (stored && stored.messages && stored.messages.length > 0) {
+      // 检查是否已经加载过（避免重复恢复）
+      if (this.data.messages.length === 0 || this.data.sessionId !== stored.id) {
+        this.setData({
+          messages: stored.messages.map((m) => ({
+            ...m,
+            citationExpanded: false,
+            feedbackStatus: m.feedbackStatus || "",
+          })),
+          sessionId: stored.id,
+        });
+        // 清除存储中的消息（避免下次误恢复）
+        storage.saveCurrentSession({
+          id: stored.id,
+          kb_id: stored.kb_id,
+          messages: null,
+        });
+        wx.pageScrollTo({ scrollTop: 9999, duration: 100 });
+      }
+    }
   },
 
   onUnload() {

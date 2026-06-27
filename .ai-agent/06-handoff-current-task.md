@@ -2,16 +2,19 @@
 
 > 给下一位 AI agent 使用。开始继续开发前，先读本文件，再读本目录其它文档。
 
-## 2026-06-27 Claude Code 最终实现提示词 - 阶段3完成
+## 2026-06-27 Claude Code 最终实现提示词 - 阶段4完成
 
-- 知识库页 `pages/knowledge/index` 接入真实 `GET /api/v1/knowledge-bases` 接口。
-- 支持加载态、空态（暂无可访问知识库）、错误态和重试、分页加载和下拉刷新。
-- 搜索通过服务端 keyword 参数实现（300ms 防抖）。
-- 问答页 `pages/chat/index` 底部弹层使用真实知识库列表。
-- 切换知识库时，若已有会话内容，弹窗确认后开始新会话（清除消息和会话 ID）。
-- 创建会话通过 `POST /api/v1/qa/sessions`，保存 session_id 和 kb_id。
-- 后端字段通过 `adapters/index.js` 转为视图字段。
-- 每条 AI 消息独立管理展开状态和反馈状态。
+- 问答页非流式问答完整路径：用户消息 → loading 占位 → 最终回答按顺序追加（不覆盖）。
+- 发送期间防止重复提交（sending 标志），失败后保留问题和错误状态并支持重试。
+- 保存 session_id、message_id、citations 和 feedback_status。
+- 多轮问答沿用同一 session_id。
+- "重新生成"使用当前问题重新请求，先移除最后一条 assistant 消息。
+- 历史页 `pages/history/index` 接入真实 `GET /api/v1/qa/sessions` 接口。
+- 会话按今天、昨天、近7天、更早分组。
+- 点击会话获取消息（`GET /api/v1/qa/sessions/{id}/messages`）并恢复到问答页。
+- 单会话删除前确认，成功后刷新列表。
+- 搜索仅针对已加载数据（说明分页边界）。
+- 历史页支持加载态、空态（EmptyHistory）、错误态和重试。
 - JS 语法、JSON 解析和 51 项单元测试全部通过。
 
 ## 2026-06-27 原始需求与缺口审计

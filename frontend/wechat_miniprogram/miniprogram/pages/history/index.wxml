@@ -8,16 +8,42 @@
     </view>
   </view>
 
-  <view class="empty" wx:if="{{!groups.length}}">
-    <image class="empty-icon" src="/images/icons/history.png" mode="aspectFit" />
-    <view class="empty-title">暂无历史会话</view>
-    <view class="empty-desc">去提问吧，记录会在这里显示。</view>
+  <!-- 加载中 -->
+  <view class="state-box" wx:if="{{status === 'loading'}}">
+    <view class="state-spinner"></view>
+    <text class="state-text">加载中...</text>
   </view>
 
+  <!-- 错误状态 -->
+  <view class="state-box" wx:elif="{{status === 'error'}}">
+    <image class="state-icon" src="/images/icons/warning-circle.png" mode="aspectFit" />
+    <view class="state-title">加载失败</view>
+    <view class="state-desc">{{errorMsg}}</view>
+    <view class="state-retry" bindtap="retry">点击重试</view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="state-box" wx:elif="{{status === 'empty'}}">
+    <image class="state-icon" src="/images/icons/history.png" mode="aspectFit" />
+    <view class="state-title">暂无历史会话</view>
+    <view class="state-desc">去提问吧，记录会在这里显示。</view>
+  </view>
+
+  <!-- 会话列表 -->
   <block wx:for="{{groups}}" wx:key="name">
     <view class="group-title">{{item.name}}</view>
     <view class="session-list">
-      <view class="session-cell" wx:for="{{item.items}}" wx:for-item="session" wx:key="id" data-title="{{session.title}}" bindtap="openSession" bindlongpress="deleteSession">
+      <view
+        class="session-cell"
+        wx:for="{{item.items}}"
+        wx:for-item="session"
+        wx:key="id"
+        data-id="{{session.id}}"
+        data-title="{{session.title}}"
+        data-kb-id="{{session.kbId}}"
+        bindtap="openSession"
+        bindlongpress="deleteSession"
+      >
         <view class="session-icon">
           <image class="session-icon-image" src="/images/icons/history.png" mode="aspectFit" />
         </view>
@@ -26,16 +52,21 @@
             <text class="session-title one-line">{{session.title}}</text>
           </view>
           <view class="session-meta">
-            <text class="kb-tag">{{session.kb}}</text>
+            <text class="kb-tag">{{session.kbName}}</text>
             <text class="message-count">{{session.messageCount}} 条消息</text>
           </view>
           <view class="session-preview one-line">{{session.preview}}</view>
         </view>
         <view class="session-side">
-          <text class="session-time">{{session.displayTime}}</text>
+          <text class="session-time">{{session.time}}</text>
           <text class="session-arrow">›</text>
         </view>
       </view>
     </view>
   </block>
+
+  <!-- 搜索说明 -->
+  <view class="search-note" wx:if="{{keyword && groups.length === 0 && status === 'done'}}">
+    <text>未搜索到匹配的会话</text>
+  </view>
 </view>
