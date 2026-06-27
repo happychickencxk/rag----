@@ -8,12 +8,28 @@
     </view>
   </view>
 
-  <view class="empty" wx:if="{{!list.length}}">
-    <image class="empty-icon" src="/images/icons/knowledge-base.png" mode="aspectFit" />
-    <view class="empty-title">暂无匹配知识库</view>
-    <view class="empty-desc">请换一个关键词重新搜索。</view>
+  <!-- 加载中 -->
+  <view class="state-box" wx:if="{{status === 'loading' && !list.length}}">
+    <view class="state-spinner"></view>
+    <text class="state-text">加载中...</text>
   </view>
 
+  <!-- 错误状态 -->
+  <view class="state-box" wx:elif="{{status === 'error'}}">
+    <image class="state-icon" src="/images/icons/warning-circle.png" mode="aspectFit" />
+    <view class="state-title">加载失败</view>
+    <view class="state-desc">{{errorMsg}}</view>
+    <view class="state-retry" bindtap="retry">点击重试</view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="state-box" wx:elif="{{status === 'empty'}}">
+    <image class="state-icon" src="/images/icons/knowledge-base.png" mode="aspectFit" />
+    <view class="state-title">暂无可访问知识库</view>
+    <view class="state-desc">请联系管理员配置知识库访问权限。</view>
+  </view>
+
+  <!-- 知识库列表 -->
   <view class="kb-list" wx:else>
     <view class="kb-cell {{item.permission === 'denied' ? 'is-disabled' : ''}}" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="selectKb">
       <view class="kb-mark {{item.permission === 'denied' ? 'locked' : ''}}">
@@ -33,6 +49,16 @@
       </view>
       <text class="selected-mark" wx:if="{{selectedKbId === item.id}}">✓</text>
       <text class="cell-arrow" wx:else>›</text>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}">
+      <text class="load-more-text" wx:if="{{status === 'loading'}}">加载更多...</text>
+      <text class="load-more-text load-more-action" wx:else bindtap="loadMore">上拉加载更多</text>
+    </view>
+
+    <view class="load-more" wx:if="{{!hasMore && list.length > 0}}">
+      <text class="load-more-text">已加载全部 {{total}} 个知识库</text>
     </view>
   </view>
 </view>

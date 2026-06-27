@@ -677,3 +677,64 @@
 .sheet-arrow {
   color: #bdbdbd;
 }
+
+/* 加载中状态 */
+.state-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32rpx 0;
+  color: #888888;
+  font-size: 26rpx;
+}
+
+.state-spinner-small {
+  width: 48rpx;
+  height: 48rpx;
+  border: 4rpx solid #f0f0f0;
+  border-top-color: #1677ff;
+  border-radius: 50%;
+  margin-bottom: 16rpx;
+  animation: chat-spin 800ms linear infinite;
+}
+
+@keyframes chat-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* AI 消息错误状态 */
+.state-error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 0;
+}
+
+.error-icon {
+  width: 48rpx;
+  height: 48rpx;
+  margin-bottom: 10rpx;
+  filter: brightness(0) saturate(100%) invert(38%) sepia(85%) saturate(2339%) hue-rotate(337deg) brightness(100%) contrast(88%);
+}
+
+.error-text {
+  color: #ef4444;
+  font-size: 26rpx;
+  text-align: center;
+  line-height: 1.5;
+}
+
+.error-retry {
+  margin-top: 14rpx;
+  padding: 10rpx 32rpx;
+  color: #1677ff;
+  font-size: 24rpx;
+  border: 1rpx solid #1677ff;
+  border-radius: 10rpx;
+}
+
+/* 受限引用 */
+.citation-restricted {
+  color: #ef4444 !important;
+}

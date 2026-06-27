@@ -6,8 +6,8 @@
       <view class="kb-icon">
         <image class="kb-icon-image" src="/images/icons/knowledge-base.png" mode="aspectFit" />
       </view>
-      <text class="kb-name">{{selectedKb.name}}</text>
-      <text class="kb-status">已连接</text>
+      <text class="kb-name">{{selectedKb.name || '选择知识库'}}</text>
+      <text class="kb-status" wx:if="{{selectedKb}}">已连接</text>
     </view>
     <view class="kb-right">
       <text class="kb-switch-label">切换</text>
@@ -17,83 +17,124 @@
 
   <view class="conversation">
     <block wx:for="{{messages}}" wx:key="id">
+      <!-- 用户消息 -->
       <view wx:if="{{item.role === 'user'}}" class="message-row user-row">
         <view class="user-bubble">{{item.text}}</view>
       </view>
 
+      <!-- AI 回答 -->
       <view wx:if="{{item.role === 'assistant'}}" class="message-row ai-row">
         <view class="ai-avatar">
           <image class="ai-avatar-image" src="/images/icons/ai-assistant.png" mode="aspectFit" />
         </view>
         <view class="ai-card">
-          <view class="low-confidence" wx:if="{{item.lowConfidence}}">
-            <image class="low-confidence-icon" src="/images/icons/warning-triangle.png" mode="aspectFit" />
-            <text>回答置信度较低，请结合引用来源人工确认。</text>
+          <!-- 加载中 -->
+          <view wx:if="{{item.loading && !item.error}}" class="state-loading">
+            <view class="state-spinner-small"></view>
+            <text>正在基于知识库生成回答...</text>
           </view>
 
-          <view class="answer-content" wx:if="{{item.paragraphs}}">
-            <view class="answer-paragraph" wx:for="{{item.paragraphs}}" wx:for-item="paragraph" wx:key="id">
-              <text
-                wx:for="{{paragraph.segments}}"
-                wx:for-item="segment"
-                wx:key="id"
-                class="answer-segment {{segment.strong ? 'answer-strong' : ''}}"
-              >{{segment.text}}</text>
+          <!-- 错误状态 -->
+          <view wx:elif="{{item.error}}" class="state-error-card">
+            <image class="error-icon" src="/images/icons/warning-circle.png" mode="aspectFit" />
+            <text class="error-text">{{item.errorMsg}}</text>
+            <view class="error-retry" data-question="{{item.retryQuestion}}" bindtap="retryMessage">重试</view>
+          </view>
+
+          <!-- 正常回答 -->
+          <block wx:else>
+            <!-- 低置信度警告 -->
+            <view class="low-confidence" wx:if="{{item.lowConfidence}}">
+              <image class="low-confidence-icon" src="/images/icons/warning-triangle.png" mode="aspectFit" />
+              <text>回答置信度较低，请结合引用来源人工确认。</text>
             </view>
-          </view>
-          <text wx:else class="answer-text">{{item.text}}</text>
 
-          <view class="citation-card" wx:if="{{item.citations.length}}">
-            <button class="citation-header" bindtap="toggleCitations">
-              <view class="citation-title">
-                <image class="source-icon" src="/images/icons/source.png" mode="aspectFit" />
-                <text>查看来源</text>
-                <text class="citation-count">{{item.citations.length}}</text>
+            <!-- 回答内容 -->
+            <view class="answer-content" wx:if="{{item.paragraphs && item.paragraphs.length}}">
+              <view class="answer-paragraph" wx:for="{{item.paragraphs}}" wx:for-item="paragraph" wx:key="id">
+                <text
+                  wx:for="{{paragraph.segments}}"
+                  wx:for-item="segment"
+                  wx:key="id"
+                  class="answer-segment {{segment.strong ? 'answer-strong' : ''}}"
+                >{{segment.text}}</text>
               </view>
-              <text class="citation-arrow">{{citationExpanded ? "⌃" : "⌄"}}</text>
-            </button>
-            <view wx:if="{{citationExpanded}}" class="citation-list">
-              <view class="citation-item" wx:for="{{item.citations}}" wx:key="id" data-id="{{item.id}}" bindtap="openCitation">
-                <view class="citation-index">{{index + 1}}</view>
-                <view class="citation-body">
-                  <view class="citation-line">
-                    <text class="citation-name one-line">{{item.title}}</text>
-                    <text class="score {{item.scoreLevel}}">{{item.rerankPercent}}</text>
+            </view>
+            <text wx:else class="answer-text">{{item.text}}</text>
+
+            <!-- 引用来源 -->
+            <view class="citation-card" wx:if="{{item.citations && item.citations.length}}">
+              <view class="citation-header" bindtap="toggleCitations" data-msg-id="{{item.id}}">
+                <view class="citation-title">
+                  <image class="source-icon" src="/images/icons/source.png" mode="aspectFit" />
+                  <text>查看来源</text>
+                  <text class="citation-count">{{item.citations.length}}</text>
+                </view>
+                <text class="citation-arrow">{{item.citationExpanded ? '⌃' : '⌄'}}</text>
+              </view>
+              <view wx:if="{{item.citationExpanded}}" class="citation-list">
+                <view
+                  class="citation-item"
+                  wx:for="{{item.citations}}"
+                  wx:key="id"
+                  data-msg-id="{{item.id}}"
+                  data-cid="{{item.id}}"
+                  bindtap="openCitation"
+                >
+                  <view class="citation-index">{{index + 1}}</view>
+                  <view class="citation-body">
+                    <view class="citation-line">
+                      <text class="citation-name one-line">{{item.title}}</text>
+                      <text class="score {{item.scoreLevel}}">{{item.rerankPercent}}</text>
+                    </view>
+                    <view class="citation-path one-line">{{item.path}}</view>
+                    <view class="citation-excerpt two-line" wx:if="{{item.permitted}}">{{item.excerpt}}</view>
+                    <view class="citation-excerpt two-line citation-restricted" wx:else>无权查看完整原文</view>
                   </view>
-                  <view class="citation-path one-line">{{item.path}}</view>
-                  <view class="citation-excerpt two-line">{{item.excerpt}}</view>
                 </view>
               </view>
             </view>
-          </view>
 
-          <view class="feedback-bar">
-            <button class="feedback-btn {{feedbackValue === 'like' ? 'active' : ''}}" data-value="like" bindtap="markHelpful">
-              <image class="feedback-action-icon" src="/images/icons/thumb-up.png" mode="aspectFit" />
-              <text>有用</text>
-            </button>
-            <button class="feedback-btn {{feedbackValue === 'dislike' ? 'danger' : ''}}" data-value="dislike" bindtap="markHelpful">
-              <image class="feedback-action-icon thumb-down-icon" src="/images/icons/thumb-up.png" mode="aspectFit" />
-              <text>没用</text>
-            </button>
-            <button class="feedback-btn" bindtap="copyAnswer">
-              <image class="feedback-action-icon" src="/images/icons/copy.png" mode="aspectFit" />
-              <text>复制</text>
-            </button>
-            <button class="feedback-btn" bindtap="regenerate">
-              <image class="feedback-action-icon" src="/images/icons/regenerate.png" mode="aspectFit" />
-              <text>重新生成</text>
-            </button>
-            <button class="feedback-btn" bindtap="submitFeedback">
-              <image class="feedback-action-icon" src="/images/icons/feedback.png" mode="aspectFit" />
-              <text>纠错</text>
-            </button>
-          </view>
+            <!-- 反馈栏 -->
+            <view class="feedback-bar">
+              <button
+                class="feedback-btn {{item.feedbackStatus === 'like' ? 'active' : ''}}"
+                data-value="like"
+                data-msg-id="{{item.id}}"
+                bindtap="markHelpful"
+              >
+                <image class="feedback-action-icon" src="/images/icons/thumb-up.png" mode="aspectFit" />
+                <text>有用</text>
+              </button>
+              <button
+                class="feedback-btn {{item.feedbackStatus === 'dislike' ? 'danger' : ''}}"
+                data-value="dislike"
+                data-msg-id="{{item.id}}"
+                bindtap="markHelpful"
+              >
+                <image class="feedback-action-icon thumb-down-icon" src="/images/icons/thumb-up.png" mode="aspectFit" />
+                <text>没用</text>
+              </button>
+              <button class="feedback-btn" data-msg-id="{{item.id}}" bindtap="copyAnswer">
+                <image class="feedback-action-icon" src="/images/icons/copy.png" mode="aspectFit" />
+                <text>复制</text>
+              </button>
+              <button class="feedback-btn" bindtap="regenerate">
+                <image class="feedback-action-icon" src="/images/icons/regenerate.png" mode="aspectFit" />
+                <text>重新生成</text>
+              </button>
+              <button class="feedback-btn" data-msg-id="{{item.id}}" bindtap="submitFeedback">
+                <image class="feedback-action-icon" src="/images/icons/feedback.png" mode="aspectFit" />
+                <text>纠错</text>
+              </button>
+            </view>
+          </block>
         </view>
       </view>
     </block>
   </view>
 
+  <!-- 输入栏 -->
   <view class="input-placeholder"></view>
   <view class="question-bar">
     <button class="voice-btn" bindtap="voiceInput" aria-label="语音输入">
@@ -111,13 +152,15 @@
         placeholder="请输入你的问题..."
         placeholder-class="question-placeholder"
         bindinput="onInput"
+        disabled="{{sending}}"
       ></textarea>
     </view>
-    <button class="send-btn {{question ? 'enabled' : ''}}" bindtap="onSend" aria-label="发送">
+    <button class="send-btn {{question && !sending ? 'enabled' : ''}}" bindtap="onSend" aria-label="发送" disabled="{{sending}}">
       <image class="send-icon" src="/images/icons/send-message.png" mode="aspectFit" />
     </button>
   </view>
 
+  <!-- 知识库切换弹层 -->
   <view wx:if="{{showKbSheet}}" class="sheet-mask" catchtap="closeKbSheet">
     <view class="kb-sheet" catchtap="noop">
       <view class="sheet-handle"></view>
