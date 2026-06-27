@@ -2,6 +2,14 @@
 
 > 给下一位 AI agent 使用。开始继续开发前，先读本文件，再读本目录其它文档。
 
+## 2026-06-27 Claude Code 最终实现 - 全部8阶段完成
+
+- 阶段1-7：请求封装、微信登录、知识库/会话、非流式问答/历史、SSE流式、引用/反馈、文件上传全部实现。
+- 阶段8：清理 mock 直接依赖、更新全部 .ai-agent 文档、新增 `11-api-compliance-checklist.md`。
+- 51 项单元测试全部通过，JS/JSON 语法检查全部通过。
+- 所有格式化页面不再直接读取 `utils/mock.js`；mock 仅经显式数据源进入。
+- 后端未就绪，真实联调标记为阻塞。详见合规清单。
+
 ## 2026-06-27 Claude Code 最终实现提示词 - 阶段6完成
 
 - 引用详情页 `pages/citation/detail` 使用真实 `GET /api/v1/qa/sessions/{id}/messages/{id}/citations` 接口。
