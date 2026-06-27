@@ -107,9 +107,31 @@
 }
 
 .expand-btn {
+  width: 300rpx;
   margin-top: 18rpx;
+  padding: 8rpx 12rpx;
   color: #1677ff;
   font-size: 26rpx;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: color 200ms ease, background-color 200ms ease;
+}
+
+.expand-chevron {
+  width: 14rpx;
+  height: 14rpx;
+  margin: -6rpx 4rpx 0 16rpx;
+  border-right: 3rpx solid #1677ff;
+  border-bottom: 3rpx solid #1677ff;
+  transform: rotate(45deg);
+  transition: transform 200ms ease, border-color 200ms ease;
+}
+
+.expand-chevron.is-expanded {
+  margin-top: 6rpx;
+  transform: rotate(225deg);
 }
 
 .limited-tip {
@@ -148,6 +170,7 @@
   align-items: center;
   justify-content: center;
   gap: 12rpx;
+  transition: color 200ms ease, background-color 200ms ease, opacity 200ms ease;
 }
 
 .action.primary {
@@ -160,6 +183,7 @@
   height: 30rpx;
   filter: brightness(0);
   opacity: 0.56;
+  transition: filter 200ms ease, opacity 200ms ease;
 }
 
 .copy-action-icon {

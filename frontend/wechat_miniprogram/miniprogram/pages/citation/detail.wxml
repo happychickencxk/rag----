@@ -25,7 +25,10 @@
     <view class="section-title">原文片段</view>
     <view class="highlight">{{citation.highlight}}</view>
     <view class="excerpt {{expanded ? '' : 'clamp'}}">{{citation.excerpt}}</view>
-    <button class="expand-btn" bindtap="toggleText">{{expanded ? "收起片段" : "展开完整片段"}}</button>
+    <view class="expand-btn" bindtap="toggleText">
+      <text>{{expanded ? "收起片段" : "展开完整片段"}}</text>
+      <view class="expand-chevron {{expanded ? 'is-expanded' : ''}}"></view>
+    </view>
     <view class="limited-tip" wx:if="{{!citation.permitted}}">
       <image class="limited-icon" src="/images/icons/no-permission.png" mode="aspectFit" />
       <text>该文档片段受权限保护，仅可查看摘要。</text>

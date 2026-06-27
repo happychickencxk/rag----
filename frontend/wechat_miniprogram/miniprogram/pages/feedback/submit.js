@@ -5,6 +5,7 @@ Page({
     options: feedbackOptions,
     selected: "",
     note: "",
+    hasNote: false,
     submitted: false,
   },
 
@@ -13,7 +14,11 @@ Page({
   },
 
   onNoteInput(e) {
-    this.setData({ note: e.detail.value.slice(0, 200) });
+    const note = e.detail.value.slice(0, 200);
+    this.setData({
+      note,
+      hasNote: note.trim().length > 0,
+    });
   },
 
   submit() {

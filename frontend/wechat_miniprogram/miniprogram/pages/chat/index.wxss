@@ -71,16 +71,23 @@
 
 .kb-right {
   gap: 8rpx;
+  height: 42rpx;
   color: #888888;
   font-size: 26rpx;
   flex-shrink: 0;
 }
 
+.kb-switch-label {
+  line-height: 42rpx;
+}
+
 .chevron {
-  color: #888888;
-  font-size: 28rpx;
-  line-height: 1;
-  transform: translateY(-2rpx);
+  width: 12rpx;
+  height: 12rpx;
+  margin: -6rpx 2rpx 0 2rpx;
+  border-right: 3rpx solid #888888;
+  border-bottom: 3rpx solid #888888;
+  transform: rotate(45deg);
 }
 
 .conversation {
@@ -244,7 +251,7 @@
 }
 
 .citation-list {
-  padding: 0 22rpx;
+  padding: 0 10rpx;
   border-top: 1rpx solid #e6f0ff;
 }
 
@@ -335,6 +342,7 @@
   font-size: 22rpx;
   line-height: 1.2;
   text-align: center;
+  transition: color 200ms ease, opacity 200ms ease;
 }
 
 .feedback-btn.active {
@@ -351,6 +359,7 @@
   display: block;
   filter: brightness(0);
   opacity: 0.26;
+  transition: filter 200ms ease, opacity 200ms ease, transform 200ms ease;
 }
 
 .thumb-down-icon {
@@ -449,6 +458,7 @@
   border-radius: 16rpx;
   background: #bdbdbd;
   justify-content: center;
+  transition: background-color 200ms ease, opacity 200ms ease;
 }
 
 .send-btn.enabled {
@@ -460,6 +470,7 @@
   height: 38rpx;
   filter: brightness(0) invert(1);
   opacity: 0.78;
+  transition: opacity 200ms ease, filter 200ms ease;
 }
 
 .send-btn.enabled .send-icon {
@@ -496,7 +507,7 @@
 
 .sheet-head {
   height: 72rpx;
-  padding: 0 44rpx;
+  padding: 0 20rpx 0 44rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;

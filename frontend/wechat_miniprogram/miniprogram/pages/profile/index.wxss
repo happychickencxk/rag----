@@ -91,13 +91,18 @@
 
 .setting-cell {
   width: 100%;
-  padding: 24rpx 0;
+  padding: 24rpx 8rpx;
   border-bottom: 1rpx solid #ededed;
   font-size: 28rpx;
   color: #1a1a1a;
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.settings-section {
+  padding-left: 12rpx;
+  padding-right: 12rpx;
 }
 
 .setting-cell:last-child {
@@ -117,6 +122,7 @@
   flex: 0 0 38rpx;
   filter: brightness(0);
   opacity: 0.56;
+  transition: filter 200ms ease, opacity 200ms ease;
 }
 
 .warning-setting .setting-icon {
@@ -129,6 +135,7 @@
   color: #bdbdbd;
   font-size: 36rpx;
   line-height: 1;
+  transition: color 200ms ease, transform 200ms ease;
 }
 
 .logout {

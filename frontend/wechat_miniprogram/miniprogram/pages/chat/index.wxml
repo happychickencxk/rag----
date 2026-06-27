@@ -8,8 +8,8 @@
       <text class="kb-status">已连接</text>
     </view>
     <view class="kb-right">
-      <text>切换</text>
-      <text class="chevron">⌄</text>
+      <text class="kb-switch-label">切换</text>
+      <view class="chevron"></view>
     </view>
   </view>
 

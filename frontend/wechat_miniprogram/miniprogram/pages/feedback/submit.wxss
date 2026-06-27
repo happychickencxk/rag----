@@ -51,7 +51,7 @@
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 18rpx 0;
+  padding: 18rpx 12rpx;
   font-size: 28rpx;
   color: #1a1a1a;
 }
@@ -62,14 +62,39 @@
   border: 3rpx solid #ededed;
   border-radius: 18rpx;
   margin-right: 20rpx;
+  flex: 0 0 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 200ms ease, background-color 200ms ease;
+}
+
+.radio::after {
+  content: "";
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #1677ff;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: opacity 200ms ease, transform 200ms ease;
 }
 
 .radio.checked {
   border-color: #1677ff;
-  background: radial-gradient(circle, #ffffff 0 28%, #1677ff 30% 100%);
+  background: #ffffff;
 }
 
-.active {
+.radio.checked::after {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.radio-label {
+  transition: color 200ms ease;
+}
+
+.radio-label.active {
   color: #1677ff;
   font-weight: 600;
 }
@@ -101,6 +126,7 @@
   line-height: 92rpx;
   font-size: 30rpx;
   font-weight: 600;
+  transition: background-color 200ms ease, opacity 200ms ease;
 }
 
 .submit.enabled {
