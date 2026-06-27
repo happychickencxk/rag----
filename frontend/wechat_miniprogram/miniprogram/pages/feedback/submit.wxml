@@ -1,3 +1,5 @@
+<custom-nav title="提交反馈" back="{{true}}" />
+
 <view class="page feedback-page" wx:if="{{!submitted}}">
   <view class="summary card">
     <view class="field">

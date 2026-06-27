@@ -6,6 +6,13 @@ Page({
     groups: groupSessions(),
   },
 
+  onShow() {
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar) {
+      tabBar.setData({ selected: 2 });
+    }
+  },
+
   onSearch(e) {
     const keyword = e.detail.value.trim();
     const allGroups = groupSessions();

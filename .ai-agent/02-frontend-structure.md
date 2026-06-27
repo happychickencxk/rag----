@@ -21,6 +21,8 @@
 - `frontend/wechat_miniprogram/miniprogram/app.js`：全局状态初始化，当前保存选中知识库和 token 占位字段。
 - `frontend/wechat_miniprogram/miniprogram/app.wxss`：全局样式、卡片、文本截断和按钮重置。
 - `frontend/wechat_miniprogram/miniprogram/utils/mock.js`：迁移阶段模拟数据。
+- `frontend/wechat_miniprogram/miniprogram/components/custom-nav`：所有业务页面共用的自定义导航栏，负责状态栏避让、标题位置和二级页返回。
+- `frontend/wechat_miniprogram/miniprogram/custom-tab-bar`：四个主 tab 共用的自定义底部导航，统一图标灰色与企业蓝选中态。
 
 ## 当前页面与组件
 
@@ -58,6 +60,7 @@
 - `pages/feedback/submit.*`：反馈纠错页，支持反馈类型选择、补充说明和提交成功态。
 - `pages/profile/index.*`：我的页，展示用户身份、权限列表、设置入口。
 - `pages/states/index.*`：异常状态预览页。
+- `pages/files/index.*`：文件中心页，包含微信文件选择、待上传列表和下载状态；真实上传、下载仍等待后端接口。
 
 ## 样式策略
 
@@ -75,11 +78,14 @@
 - 可交互控件发生颜色、透明度或图标状态变化时，默认使用约 `200ms ease` 过渡；当前已覆盖问答发送、答案反馈、反馈类型单选和提交反馈按钮。
 - 提交反馈按钮的蓝色启用态由补充说明中的非空文本驱动，纯空格仍保持灰色。
 - 原生导航栏标题由微信宿主渲染，页面 WXSS 无法单独调整标题的垂直位置；需要完全控制时必须改为自定义导航栏。
+- 当前已将全局 `navigationStyle` 改为 `custom`，所有业务页面通过 `custom-nav` 统一控制标题并略微上移。
+- 当前 tabBar 使用官方自定义模式，图标在组件内通过 WXSS 滤镜统一为灰色，选中态统一为企业蓝。
 
 ## 当前限制
 
 - 小程序端仍使用 `utils/mock.js`，没有真实 API 请求层。
 - 还没有统一的请求封装、认证 token 管理、SSE 流处理和错误映射。
+- 文件中心目前只有前端选择和状态展示，上传、下载、文件列表接口尚未定义和对接。
 - `frontend/wechat_miniprogram` 原本是云开发 QuickStart 模板，部分旧模板页面和云函数仍存在，但已从 `app.json` 页面入口移除。
 - `frontend/wechat_miniprogram` 曾带有模板自带的独立 `.git` 元数据；为便于外层仓库统一管理，本轮已移除内嵌 `.git`，源码将由根仓库跟踪。
 

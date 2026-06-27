@@ -20,6 +20,7 @@
 .citation-title,
 .feedback-btn,
 .voice-btn,
+.upload-btn,
 .send-btn {
   display: flex;
   align-items: center;
@@ -218,6 +219,7 @@
 
 .citation-title {
   gap: 12rpx;
+  margin-left: 70rpx;
   color: #1677ff;
   font-size: 26rpx;
   font-weight: 600;
@@ -226,7 +228,7 @@
 .source-icon {
   width: 28rpx;
   height: 28rpx;
-  flex: 0 0 28rpx;
+  flex: 0 0 24rpx;
   filter: brightness(0) saturate(100%) invert(39%) sepia(97%) saturate(2816%) hue-rotate(204deg) brightness(100%) contrast(104%);
 }
 
@@ -246,19 +248,21 @@
 .citation-arrow {
   color: #1677ff;
   font-size: 28rpx;
+  margin-bottom: 10rpx;
   font-weight: 700;
   line-height: 1;
 }
 
 .citation-list {
-  padding: 0 10rpx;
+  padding: 10rpx 12rpx;
   border-top: 1rpx solid #e6f0ff;
 }
 
 .citation-item {
   width: 100%;
   display: flex;
-  padding: 20rpx 0;
+  padding: 20rpx 4rpx;
+  position: relative;
   border-bottom: 1rpx solid #ededed;
 }
 
@@ -269,7 +273,9 @@
 .citation-index {
   width: 34rpx;
   height: 34rpx;
-  margin: 2rpx 14rpx 0 0;
+  position: absolute;
+  left: 4rpx;
+  top: 22rpx;
   border-radius: 10rpx;
   background: #1677ff;
   color: #ffffff;
@@ -281,6 +287,7 @@
 }
 
 .citation-body {
+  width: 100%;
   flex: 1;
   min-width: 0;
 }
@@ -289,6 +296,7 @@
   display: flex;
   align-items: center;
   gap: 10rpx;
+  padding-left: 48rpx;
 }
 
 .citation-name {
@@ -377,14 +385,14 @@
 }
 
 .input-placeholder {
-  height: 140rpx;
+  height: 250rpx;
 }
 
 .question-bar {
   position: fixed;
   left: 0;
   right: 0;
-  bottom: 0;
+  bottom: calc(100rpx + env(safe-area-inset-bottom));
   z-index: 10;
   display: flex;
   align-items: flex-end;
@@ -395,12 +403,32 @@
 }
 
 .voice-btn,
+.upload-btn,
 .send-btn {
   min-width: 0;
   margin: 0;
   padding: 0;
   line-height: normal;
   overflow: hidden;
+}
+
+.upload-btn {
+  width: 64rpx;
+  min-width: 64rpx;
+  max-width: 64rpx;
+  height: 72rpx;
+  min-height: 72rpx;
+  max-height: 72rpx;
+  flex: 0 0 64rpx;
+  justify-content: center;
+}
+
+.upload-icon {
+  width: 38rpx;
+  height: 38rpx;
+  filter: brightness(0);
+  opacity: 0.42;
+  transition: opacity 200ms ease, filter 200ms ease;
 }
 
 .voice-btn {
@@ -482,7 +510,7 @@
   left: 0;
   right: 0;
   top: 0;
-  bottom: 0;
+  bottom: calc(100rpx + env(safe-area-inset-bottom));
   z-index: 99;
   background: rgba(0, 0, 0, 0.42);
   display: flex;

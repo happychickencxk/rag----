@@ -1,3 +1,5 @@
+<custom-nav title="历史会话" />
+
 <view class="history-page">
   <view class="search-section">
     <view class="search-box">

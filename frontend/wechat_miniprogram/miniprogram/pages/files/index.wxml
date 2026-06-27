@@ -1,0 +1,37 @@
+<custom-nav title="文件中心" back="{{true}}" />
+
+<view class="page files-page">
+  <view class="upload-section">
+    <view class="upload-visual">
+      <image class="upload-visual-icon" src="/images/icons/upload-file.png" mode="aspectFit" />
+    </view>
+    <view class="upload-content">
+      <view class="upload-title">上传知识文件</view>
+      <view class="upload-meta">PDF、Word、Excel、PPT，单个文件不超过 20 MB</view>
+    </view>
+    <button class="choose-button" bindtap="chooseFile">选择文件</button>
+  </view>
+
+  <view class="file-section">
+    <view class="section-head">
+      <text class="section-title">文件列表</text>
+      <text class="section-count">{{files.length}} 个文件</text>
+    </view>
+    <view class="file-list">
+      <view class="file-row" wx:for="{{files}}" wx:key="id">
+        <view class="file-icon-box">
+          <image class="file-icon" src="/images/icons/source.png" mode="aspectFit" />
+        </view>
+        <view class="file-info">
+          <view class="file-name one-line">{{item.name}}</view>
+          <view class="file-meta one-line">{{item.meta}}</view>
+        </view>
+        <button
+          class="download-button {{item.status === '可下载' ? 'is-ready' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="downloadFile"
+        >{{item.status}}</button>
+      </view>
+    </view>
+  </view>
+</view>

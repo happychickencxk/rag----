@@ -6,16 +6,19 @@
     "pages/profile/index",
     "pages/citation/detail",
     "pages/feedback/submit",
-    "pages/states/index"
+    "pages/states/index",
+    "pages/files/index"
   ],
   "window": {
     "backgroundColor": "#F7F8FA",
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#FFFFFF",
     "navigationBarTitleText": "企业知识库助手",
-    "navigationBarTextStyle": "black"
+    "navigationBarTextStyle": "black",
+    "navigationStyle": "custom"
   },
   "tabBar": {
+    "custom": true,
     "color": "#888888",
     "selectedColor": "#1677FF",
     "backgroundColor": "#FFFFFF",
@@ -46,6 +49,9 @@
         "selectedIconPath": "images/icons/profile.png"
       }
     ]
+  },
+  "usingComponents": {
+    "custom-nav": "/components/custom-nav/index"
   },
   "sitemapLocation": "sitemap.json",
   "style": "v2",

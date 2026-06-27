@@ -12,6 +12,10 @@ Page({
     this.setData({
       selectedKbId: app.globalData.selectedKbId || "aftersales",
     });
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar) {
+      tabBar.setData({ selected: 1 });
+    }
   },
 
   onSearch(e) {

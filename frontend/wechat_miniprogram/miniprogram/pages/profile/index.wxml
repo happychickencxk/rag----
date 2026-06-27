@@ -1,3 +1,5 @@
+<custom-nav title="我的" />
+
 <view class="page profile-page">
   <view class="user-card">
     <image class="avatar" src="/images/icons/avatar.png" mode="aspectFill" />

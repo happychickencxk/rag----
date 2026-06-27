@@ -10,6 +10,13 @@ Page({
     knowledgeBases,
   },
 
+  onShow() {
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar) {
+      tabBar.setData({ selected: 3 });
+    }
+  },
+
   openStates() {
     wx.navigateTo({ url: "/pages/states/index" });
   },

@@ -1,3 +1,5 @@
+<custom-nav title="知识库" />
+
 <view class="knowledge-page">
   <view class="search-section">
     <view class="search-box">

@@ -30,6 +30,10 @@ Page({
     const app = getApp();
     const selectedKb = findKnowledgeBase(app.globalData.selectedKbId || "aftersales");
     this.setData({ selectedKb });
+    const tabBar = this.getTabBar && this.getTabBar();
+    if (tabBar) {
+      tabBar.setData({ selected: 0 });
+    }
   },
 
   onInput(e) {
@@ -126,5 +130,9 @@ Page({
 
   voiceInput() {
     wx.showToast({ title: "语音输入待接入", icon: "none" });
+  },
+
+  openFiles() {
+    wx.navigateTo({ url: "/pages/files/index" });
   },
 });

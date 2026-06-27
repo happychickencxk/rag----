@@ -1,3 +1,5 @@
+<custom-nav title="引用来源" back="{{true}}" />
+
 <view class="page citation-page">
   <view class="doc-card card">
     <view class="doc-title-row">

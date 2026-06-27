@@ -1,3 +1,5 @@
+<custom-nav title="异常状态预览" back="{{true}}" />
+
 <view class="page states-page">
   <view class="state-card card {{item.type}}" wx:for="{{statusCards}}" wx:key="type">
     <view class="state-icon">

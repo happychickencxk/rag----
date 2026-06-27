@@ -22,7 +22,7 @@
 | `清空.png` | `clear-history.png` | 清空历史 |
 | `三角形警告.png` | `warning-triangle.png` | 未找到依据、低置信度提示 |
 | `搜索.png` | `search.png` | 搜索框 |
-| `文件上传.png` | `upload-file.png` | 后续文件上传入口 |
+| `文件上传.png` | `upload-file.png` | 问答输入栏文件入口、文件中心上传区域 |
 | `我的.png` | `profile.png` | 我的 tab |
 | `无权限.png` | `no-permission.png` | 无权限知识库和文档 |
 | `消息.png` | `notification.png` | 消息通知 |
@@ -37,9 +37,9 @@
 - 低置信度和依据不足使用黄色；无权限、超时、拦截和点踩选中态使用红色。
 - 同一操作栏的图标使用相同宽高、透明度和线性风格。问答反馈栏统一为 `28rpx`。
 - 点踩图标复用 `thumb-up.png` 并旋转 180 度，不重复维护近似资源。
-- 原始 PNG 颜色不一致时，页面内使用 WXSS `filter` 统一颜色；原生 tabBar 不支持页面 WXSS 滤镜。
-- 当前 tabBar 复用同一张普通态和选中态图片，选中状态主要由蓝色文字表示。后续如提供成套灰色和蓝色资源，应分别配置 `iconPath` 与 `selectedIconPath`。
-- `help.png` 和 `upload-file.png` 已完成规范命名，但当前页面没有对应可用功能，不应为了使用图标而添加无效入口。
+- 原始 PNG 颜色不一致时，页面内使用 WXSS `filter` 统一颜色。
+- `help.png` 已完成规范命名，但当前页面没有对应可用功能，不应为了使用图标而添加无效入口。
+- tabBar 已改为自定义组件，普通态和选中态可分别通过 WXSS 滤镜统一颜色，无需维护重复 PNG。
 
 ## 变更要求
 
