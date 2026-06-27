@@ -2,6 +2,13 @@
 
 > 给下一位 AI agent 使用。开始继续开发前，先读本文件，再读本目录其它文档。
 
+## 2026-06-27 引用宽度运行时修复
+
+- Computer Use 已恢复并成功连接微信开发者工具。
+- WXML 检查器实测 `.citation-list` 宽度为 `279px`，但原生 `button.citation-item` 仅为 `184px`，左右各出现约 `41.5px` 自动外边距。
+- 已将展开引用行从 `button` 改为 `view bindtap`，与知识库、历史列表采用相同的全宽处理方式。
+- 修复后 WXML 检查器实测 `.citation-excerpt` 宽度为 `263px`，相较修复前的 `180px` 已基本铺满列表可用宽度。
+
 ## 2026-06-27 自定义导航与文件中心
 
 - 全局导航已改为 `navigationStyle: custom`，新增 `components/custom-nav`，所有业务页面标题统一略微上移，二级页使用自定义返回按钮。

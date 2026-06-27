@@ -53,7 +53,7 @@
               <text class="citation-arrow">{{citationExpanded ? "⌃" : "⌄"}}</text>
             </button>
             <view wx:if="{{citationExpanded}}" class="citation-list">
-              <button class="citation-item" wx:for="{{item.citations}}" wx:key="id" data-id="{{item.id}}" bindtap="openCitation">
+              <view class="citation-item" wx:for="{{item.citations}}" wx:key="id" data-id="{{item.id}}" bindtap="openCitation">
                 <view class="citation-index">{{index + 1}}</view>
                 <view class="citation-body">
                   <view class="citation-line">
@@ -63,7 +63,7 @@
                   <view class="citation-path one-line">{{item.path}}</view>
                   <view class="citation-excerpt two-line">{{item.excerpt}}</view>
                 </view>
-              </button>
+              </view>
             </view>
           </view>
 
