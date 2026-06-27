@@ -1,0 +1,39 @@
+<custom-nav title="企业知识库助手" />
+
+<view class="page login-page">
+  <view class="login-card">
+    <view class="login-logo">
+      <image class="login-logo-image" src="/images/icons/ai-assistant.png" mode="aspectFit" />
+    </view>
+    <view class="login-title">企业知识库助手</view>
+    <view class="login-desc">基于 AI 的企业内部知识检索与问答</view>
+
+    <view class="login-status" wx:if="{{status === 'loading'}}">
+      <view class="login-spinner"></view>
+      <text>正在登录...</text>
+    </view>
+
+    <view class="login-error" wx:if="{{status === 'error'}}">
+      <image class="login-error-icon" src="/images/icons/warning-circle.png" mode="aspectFit" />
+      <text>{{errorMsg}}</text>
+    </view>
+
+    <button
+      class="login-btn {{status === 'loading' ? 'btn-loading' : ''}}"
+      bindtap="handleLogin"
+      disabled="{{status === 'loading'}}"
+      aria-label="微信一键登录"
+    >
+      <image class="login-btn-icon" src="/images/icons/profile.png" mode="aspectFit" wx:if="{{status !== 'loading'}}" />
+      <text>{{status === 'loading' ? '登录中...' : '微信一键登录'}}</text>
+    </button>
+
+    <view class="login-retry" wx:if="{{status === 'error'}}" bindtap="handleLogin">
+      <text>点击重试</text>
+    </view>
+  </view>
+
+  <view class="login-footer">
+    <text>登录即表示同意服务条款和隐私政策</text>
+  </view>
+</view>

@@ -32,14 +32,9 @@ App({
     onAuthExpired(() => {
       this.globalData.selectedKbId = "";
       this.globalData.currentSessionId = "";
-      // 跳转到登录页或首页
-      const pages = getCurrentPages();
-      if (pages.length > 0) {
-        const currentPage = pages[pages.length - 1];
-        if (currentPage && currentPage.route !== "pages/chat/index") {
-          wx.switchTab({ url: "/pages/chat/index" });
-        }
-      }
+      storage.clearCurrentSession();
+      // 跳转到登录页
+      wx.reLaunch({ url: "/pages/login/index" });
     });
 
     this.globalData.ready = true;

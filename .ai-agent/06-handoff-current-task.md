@@ -2,15 +2,16 @@
 
 > 给下一位 AI agent 使用。开始继续开发前，先读本文件，再读本目录其它文档。
 
-## 2026-06-27 Claude Code 最终实现提示词 - 阶段1完成
+## 2026-06-27 Claude Code 最终实现提示词 - 阶段2完成
 
-- 已创建请求基础设施：`config/api.js`、`utils/storage.js`、`utils/request.js`、`utils/upload.js`、`utils/sse.js`。
-- 已创建服务层：`services/auth.js`、`services/knowledge.js`、`services/qa.js`、`services/document.js`。
-- 已创建适配层：`adapters/index.js`，含 snake_case → camelCase 映射和反馈原因映射。
-- 已更新 `app.js`：移除云开发初始化，集成 storage 持久化和 auth 失效监听。
-- 已编写 51 项纯 Node 单元测试，全部通过。覆盖：URL 规范化、响应解析、401 刷新队列、SSE 解析、反馈映射、引用权限、文件校验和字段适配。
-- JS 语法检查和 JSON 解析检查全部通过。
-- 后续阶段：阶段2 微信登录和用户信息。
+- 已创建登录页面 `pages/login/index`，支持微信登录、加载态、错误提示和重试。
+- 更新 `app.json`：登录页作为入口页，引导未认证用户登录。
+- 更新 `app.js`：登录失效时 `reLaunch` 到登录页。
+- 更新个人页 `pages/profile/index`：使用 `getProfile()` 真实接口获取用户信息，退出登录调用 `logout()` 并清理本地状态。
+- 统计数据（历史问答数、反馈记录数、常用知识库）无明确接口，显示 "--"。
+- "清空历史会话"提示暂不支持批量删除并引导前往历史页。
+- "消息通知"和"关于系统"提供明确反馈，不是无反应按钮。
+- JS 语法、JSON 解析和 51 项单元测试全部通过。
 
 ## 2026-06-27 原始需求与缺口审计
 
