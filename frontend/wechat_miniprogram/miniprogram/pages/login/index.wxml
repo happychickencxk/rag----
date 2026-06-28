@@ -8,28 +8,17 @@
     <view class="login-title">企业知识库助手</view>
     <view class="login-desc">基于 AI 的企业内部知识检索与问答</view>
 
-    <view class="login-status" wx:if="{{status === 'loading'}}">
-      <view class="login-spinner"></view>
-      <text>正在登录...</text>
-    </view>
-
-    <view class="login-error" wx:if="{{status === 'error'}}">
-      <image class="login-error-icon" src="/images/icons/warning-circle.png" mode="aspectFit" />
-      <text>{{errorMsg}}</text>
-    </view>
-
     <button
-      class="login-btn {{status === 'loading' ? 'btn-loading' : ''}}"
+      class="login-btn"
       bindtap="handleLogin"
-      disabled="{{status === 'loading'}}"
-      aria-label="微信一键登录"
+      aria-label="进入体验"
     >
-      <image class="login-btn-icon" src="/images/icons/profile.png" mode="aspectFit" wx:if="{{status !== 'loading'}}" />
-      <text>{{status === 'loading' ? '登录中...' : '微信一键登录'}}</text>
+      <text>{{loading ? '正在进入...' : '进入体验'}}</text>
     </button>
 
-    <view class="login-retry" wx:if="{{status === 'error'}}" bindtap="handleLogin">
-      <text>点击重试</text>
+    <view class="login-hint">
+      <text>当前为体验版本，暂不校验微信登录</text>
+      <text class="login-hint-sub">后续将接入微信一键登录接口</text>
     </view>
   </view>
 
