@@ -14,11 +14,12 @@ const {
 
 test("知识库适配：snake_case → camelCase 视图字段", () => {
   const record = {
-    id: "kb-001",
+    kb_id: "kb-001",
     name: "人事制度库",
     description: "员工手册",
-    department: "人力资源部",
+    department_name: "人力资源部",
     doc_count: 128,
+    chunk_count: 2048,
     status: "active",
     created_at: "2024-01-01T00:00:00Z",
     updated_at: "2024-03-15T10:00:00Z",
@@ -27,7 +28,9 @@ test("知识库适配：snake_case → camelCase 视图字段", () => {
   const view = adaptKnowledgeBase(record);
   assert.strictEqual(view.id, "kb-001");
   assert.strictEqual(view.name, "人事制度库");
+  assert.strictEqual(view.department, "人力资源部");
   assert.strictEqual(view.docCount, 128);
+  assert.strictEqual(view.chunkCount, 2048);
   assert.strictEqual(view.status, "active");
   assert.strictEqual(view.updatedAt, "2024-03-15T10:00:00Z");
   assert.strictEqual(view.permission, "granted");
@@ -52,11 +55,11 @@ test("会话适配：时间分组", () => {
   const todayISO = today.toISOString();
 
   const record = {
-    id: "s1",
+    session_id: "s1",
     title: "测试会话",
     kb_id: "kb-001",
     message_count: 3,
-    created_at: todayISO,
+    started_at: todayISO,
   };
 
   const view = adaptSession(record);
@@ -65,9 +68,20 @@ test("会话适配：时间分组", () => {
   assert.strictEqual(view.group, "今天");
 });
 
+test("会话适配：UTC 时间转换为本地时间", () => {
+  const view = adaptSession({
+    session_id: "s-timezone",
+    title: "时区测试",
+    kb_id: "kb-001",
+    started_at: "2026-06-29T01:36:00Z",
+  });
+
+  assert.strictEqual(view.time, "09:36");
+});
+
 test("消息适配：用户消息", () => {
   const record = {
-    id: "msg-1",
+    message_id: "msg-1",
     session_id: "s1",
     role: "user",
     content: "试用期请假？",
@@ -82,15 +96,15 @@ test("消息适配：用户消息", () => {
 
 test("消息适配：assistant 消息含引用和段落", () => {
   const record = {
-    id: "msg-2",
+    message_id: "msg-2",
     session_id: "s1",
     role: "assistant",
     content: "第一点\n**重点**内容\n第二点",
     citations: [
       {
-        id: "c1",
-        document_name: "员工手册",
-        excerpt: "测试内容",
+        chunk_id: "c1",
+        doc_name: "员工手册",
+        content: "测试内容",
         permission: "granted",
       },
     ],
@@ -115,8 +129,8 @@ test("用户适配：profile 字段映射", () => {
     user_id: "u-001",
     name: "张明",
     avatar_url: "https://example.com/avatar.png",
-    department: "客服中心",
-    role: "客服专员",
+    department_name: "客服中心",
+    role_name: "客服专员",
     is_new_user: false,
   };
 
@@ -128,9 +142,9 @@ test("用户适配：profile 字段映射", () => {
 
 test("引用适配：缺失字段不补齐", () => {
   const record = {
-    id: "c1",
-    document_name: "测试文档",
-    excerpt: "部分内容",
+    chunk_id: "c1",
+    doc_name: "测试文档",
+    content: "部分内容",
     permission: "granted",
   };
 
@@ -139,4 +153,15 @@ test("引用适配：缺失字段不补齐", () => {
   assert.strictEqual(view.kb, ""); // 未返回 kb_name
   assert.strictEqual(view.updatedAt, ""); // 未返回 updated_at
   assert.strictEqual(view.highlight, ""); // 未返回 highlight
+});
+
+test("引用适配：更新时间只展示日期", () => {
+  const view = adaptCitation({
+    chunk_id: "chunk-date",
+    doc_name: "测试文档",
+    updated_at: "2024-06-15T09:00:00Z",
+    permission: "granted",
+  });
+
+  assert.strictEqual(view.updatedAt, "2024-06-15");
 });

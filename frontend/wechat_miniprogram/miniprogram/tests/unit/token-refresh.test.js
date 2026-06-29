@@ -1,92 +1,117 @@
 /**
- * 测试：并发 401 只刷新一次，并正确重放等待请求。
- * 纯逻辑测试，不依赖微信 API。
+ * 测试生产请求层的并发刷新队列和 401 最大重放次数。
  */
-const assert = require("node:assert");
+
+const assert = require("node:assert/strict");
 const test = require("node:test");
+const storage = require("../../utils/storage");
+const { refreshToken, request } = require("../../utils/request");
 
-// 模拟刷新队列机制
-function createRefreshManager() {
-  let refreshPromise = null;
-  let refreshCount = 0;
+test("并发 401 刷新只请求一次刷新接口", async (t) => {
+  const originalWx = global.wx;
+  const originalMethods = {
+    getRefreshToken: storage.getRefreshToken,
+    saveTokens: storage.saveTokens,
+    clearAllAuth: storage.clearAllAuth,
+  };
+  t.after(() => {
+    global.wx = originalWx;
+    Object.assign(storage, originalMethods);
+  });
 
-  async function refreshToken() {
-    if (refreshPromise) {
-      return refreshPromise;
-    }
-
-    refreshPromise = new Promise((resolve) => {
-      // 模拟异步刷新
+  let requestCount = 0;
+  let savedToken = "";
+  storage.getRefreshToken = () => "mock-refresh-token";
+  storage.saveTokens = (accessToken) => {
+    savedToken = accessToken;
+  };
+  storage.clearAllAuth = () => {};
+  global.wx = {
+    request(options) {
+      requestCount += 1;
       setTimeout(() => {
-        refreshCount++;
-        resolve(true);
-      }, 10);
-    });
-
-    refreshPromise.finally(() => {
-      refreshPromise = null;
-    });
-
-    return refreshPromise;
-  }
-
-  return { refreshToken, getRefreshCount: () => refreshCount };
-}
-
-test("单次刷新只调用一次", async () => {
-  const mgr = createRefreshManager();
-  await mgr.refreshToken();
-  assert.strictEqual(mgr.getRefreshCount(), 1);
-});
-
-test("并发 3 次刷新只实际调用一次", async () => {
-  const mgr = createRefreshManager();
+        options.success({
+          statusCode: 200,
+          data: {
+            code: 200,
+            data: {
+              access_token: "new-access-token",
+              refresh_token: "new-refresh-token",
+              expires_in: 7200,
+            },
+          },
+        });
+      }, 5);
+    },
+  };
 
   const results = await Promise.all([
-    mgr.refreshToken(),
-    mgr.refreshToken(),
-    mgr.refreshToken(),
+    refreshToken(),
+    refreshToken(),
+    refreshToken(),
   ]);
 
-  assert.strictEqual(mgr.getRefreshCount(), 1);
-  assert.deepStrictEqual(results, [true, true, true]);
+  assert.deepEqual(results, [true, true, true]);
+  assert.equal(requestCount, 1);
+  assert.equal(savedToken, "new-access-token");
 });
 
-test("刷新失败后下一次调用重新发起刷新", async () => {
-  let failCount = 0;
-  let pending = null;
+test("刷新后仍返回 401 时只重放一次并通知失效", async (t) => {
+  const originalWx = global.wx;
+  const originalMethods = {
+    getAccessToken: storage.getAccessToken,
+    getRefreshToken: storage.getRefreshToken,
+    saveTokens: storage.saveTokens,
+    clearAllAuth: storage.clearAllAuth,
+  };
+  t.after(() => {
+    global.wx = originalWx;
+    Object.assign(storage, originalMethods);
+  });
 
-  async function failingRefresh() {
-    if (pending) return pending;
-    pending = new Promise((resolve) => {
-      setTimeout(() => {
-        failCount++;
-        resolve(false);
-      }, 5);
-    });
-    pending.finally(() => { pending = null; });
-    return pending;
-  }
+  let accessToken = "expired-access-token";
+  let profileCount = 0;
+  let refreshCount = 0;
+  let clearCount = 0;
+  storage.getAccessToken = () => accessToken;
+  storage.getRefreshToken = () => "mock-refresh-token";
+  storage.saveTokens = (newAccessToken) => {
+    accessToken = newAccessToken;
+  };
+  storage.clearAllAuth = () => {
+    clearCount += 1;
+  };
+  global.wx = {
+    request(options) {
+      if (options.url.endsWith("/auth/refresh")) {
+        refreshCount += 1;
+        options.success({
+          statusCode: 200,
+          data: {
+            code: 200,
+            data: {
+              access_token: "refreshed-but-rejected",
+              refresh_token: "new-refresh-token",
+              expires_in: 7200,
+            },
+          },
+        });
+        return;
+      }
 
-  const r1 = await failingRefresh();
-  assert.strictEqual(r1, false);
-  assert.strictEqual(failCount, 1);
+      profileCount += 1;
+      options.success({
+        statusCode: 401,
+        data: { code: 401, message: "令牌无效", data: null },
+      });
+    },
+  };
 
-  const r2 = await failingRefresh();
-  assert.strictEqual(r2, false);
-  assert.strictEqual(failCount, 2); // 新一次调用
-});
-
-test("刷新失败后 Token 被清理（模拟）", () => {
-  // 模拟 storage 清理
-  let tokens = { access: "test-token", refresh: "test-refresh" };
-
-  function clearAllAuth() {
-    tokens = { access: "", refresh: "" };
-  }
-
-  // 刷新失败时调用清理
-  clearAllAuth();
-  assert.strictEqual(tokens.access, "");
-  assert.strictEqual(tokens.refresh, "");
+  await assert.rejects(
+    request({ url: "/api/v1/auth/profile" }),
+    (error) => error.httpStatus === 401
+  );
+  assert.equal(profileCount, 2);
+  assert.equal(refreshCount, 1);
+  assert.equal(clearCount, 1);
 });

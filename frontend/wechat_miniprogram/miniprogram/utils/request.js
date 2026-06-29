@@ -21,9 +21,14 @@ function generateRequestId() {
  * 当前约定：API_ORIGIN 不含 /api/v1，请求路径以 /api/v1 开头。
  */
 function normalizeUrl(path) {
-  // 移除路径中可能重复的 /api/v1 前缀
-  const cleanPath = path.replace(/^(\/api\/v1)+/, "/api/v1");
-  return `${config.API_ORIGIN}${cleanPath}`;
+  const rawOrigin = String(config.API_ORIGIN || "").replace(/\/+$/, "");
+  const origin = rawOrigin.replace(/\/api\/v1$/, "");
+  let cleanPath = String(path || "");
+  if (!cleanPath.startsWith("/")) {
+    cleanPath = `/${cleanPath}`;
+  }
+  cleanPath = cleanPath.replace(/^(\/api\/v1)+/, "/api/v1");
+  return `${origin}${cleanPath}`;
 }
 
 // ===== 401 刷新队列 =====
@@ -180,6 +185,7 @@ function request(opts) {
   } = opts;
 
   const headers = { ...header };
+  let retryCount = 0;
 
   if (!skipAuth) {
     const token = storage.getAccessToken();
@@ -210,6 +216,12 @@ function request(opts) {
           } catch (e) {
             // 401 时尝试刷新 Token 并重放
             if (e.httpStatus === 401 && !skipAuth) {
+              if (retryCount >= config.MAX_RETRY) {
+                emitAuthExpired();
+                reject(e);
+                return;
+              }
+              retryCount += 1;
               refreshToken().then((ok) => {
                 if (ok) {
                   // 刷新成功，更新 header 中的 Token 并重放一次
@@ -275,9 +287,11 @@ module.exports = {
   post: (url, data, opts) => request({ ...opts, url, method: "POST", data, ...opts }),
   put: (url, data, opts) => request({ ...opts, url, method: "PUT", data, ...opts }),
   delete: (url, data, opts) => request({ ...opts, url, method: "DELETE", data, ...opts }),
+  del: (url, data, opts) => request({ ...opts, url, method: "DELETE", data, ...opts }),
   BusinessError,
   generateRequestId,
   normalizeUrl,
+  refreshToken,
   onAuthExpired,
   emitAuthExpired,
 };

@@ -18,6 +18,7 @@ Page({
     showKbPicker: false,
     pendingFilePath: null,
     pendingFileName: "",
+    pendingFileSize: 0,
   },
 
   onShow() {
@@ -84,6 +85,7 @@ Page({
           this.setData({
             pendingFilePath: file.path,
             pendingFileName: file.name,
+            pendingFileSize: file.size,
             showKbPicker: true,
           });
           return;
@@ -213,17 +215,21 @@ Page({
     // 继续上传之前选择的文件
     if (this.data.pendingFilePath) {
       const ext = this.getExtension(this.data.pendingFileName);
-      const sizeMB = "未知";
+      const sizeMB = (this.data.pendingFileSize / 1024 / 1024).toFixed(1);
       this.addFileTask(
         {
           path: this.data.pendingFilePath,
           name: this.data.pendingFileName,
-          size: 0,
+          size: this.data.pendingFileSize,
         },
         ext,
         sizeMB
       );
-      this.setData({ pendingFilePath: null, pendingFileName: "" });
+      this.setData({
+        pendingFilePath: null,
+        pendingFileName: "",
+        pendingFileSize: 0,
+      });
     }
   },
 
@@ -232,6 +238,7 @@ Page({
       showKbPicker: false,
       pendingFilePath: null,
       pendingFileName: "",
+      pendingFileSize: 0,
     });
   },
 

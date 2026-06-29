@@ -27,11 +27,15 @@
 - `services/document.js`：文档服务（列表/上传）。
 - `adapters/index.js`：后端 snake_case → 前端视图模型映射、反馈原因映射。
 
-## 数据源模式
+## 本地 Mock 联调
 
-在 `config/api.js` 中修改 `DATA_SOURCE`：
-- `"api"`（默认）：使用真实后端 API。请求失败展示真实错误，不自动回退到 mock。
-- `"mock"`：使用本地模拟数据验证页面和契约。仅用于开发期无后端时的 UI 验证。
+小程序始终通过服务层调用 HTTP API，不在页面内直接读取模拟数据。真实后端就绪前，在仓库根目录运行：
+
+```powershell
+node mock-server\server.js
+```
+
+当前 `config/api.js` 的 `API_ORIGIN` 为 `http://localhost:8000`。切换真实后端时只替换该地址，不修改页面调用。
 
 ## 当前说明
 
@@ -42,7 +46,7 @@
 - 语音输入按钮保留但标记为"暂未开放"。
 - 消息通知、关于系统提供明确反馈，不是无反应按钮。
 - 接口合规清单见 `../../.ai-agent/11-api-compliance-checklist.md`。
-- 后端接口未就绪，所有接口在真实联调前标记为"阻塞"。
+- 本地 Mock 契约和开发者工具验收已通过，真实后端仍待联调。
 - 原云开发 QuickStart 模板文件仍保留，建议后续独立清理。
 
 ## 运行方式
@@ -54,15 +58,7 @@
 
 ## 测试
 
-```bash
-cd miniprogram
-# 运行所有单元测试
-node tests/unit/api-url.test.js
-node tests/unit/response-parser.test.js
-node tests/unit/token-refresh.test.js
-node tests/unit/sse-parser.test.js
-node tests/unit/feedback-mapping.test.js
-node tests/unit/citation-permission.test.js
-node tests/unit/file-validation.test.js
-node tests/unit/adapter-fields.test.js
+```powershell
+node --test frontend\wechat_miniprogram\miniprogram\tests\unit\*.test.js
+node --test mock-server\contract.test.js
 ```

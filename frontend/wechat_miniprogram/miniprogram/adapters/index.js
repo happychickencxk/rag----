@@ -8,15 +8,17 @@
 
 /**
  * 后端知识库记录 → 视图模型
- * 后端字段：id, name, description, department, doc_count, status, created_at, updated_at
+ * 后端字段：kb_id, name, description, department_name, doc_count, chunk_count,
+ *           status, created_at, updated_at
  */
 function adaptKnowledgeBase(record) {
   return {
-    id: record.id || "",
+    id: record.kb_id || record.id || "",
     name: record.name || "",
     description: record.description || "",
-    department: record.department || "",
+    department: record.department_name || record.department || "",
     docCount: record.doc_count || 0,
+    chunkCount: record.chunk_count || 0,
     status: record.status || "active",
     updatedAt: record.updated_at || "",
     createdAt: record.created_at || "",
@@ -44,12 +46,12 @@ function adaptKnowledgeBasePage(pageResult) {
 
 /**
  * 后端会话记录 → 视图模型
- * 后端字段：id, title, kb_id, kb_name, message_count, created_at, updated_at
+ * 后端字段：session_id, title, kb_id, kb_name, message_count, started_at, ended_at
  */
 function adaptSession(record) {
-  const createdAt = record.created_at || "";
+  const createdAt = record.started_at || record.created_at || "";
   return {
-    id: record.id || "",
+    id: record.session_id || record.id || "",
     title: record.title || "",
     kbId: record.kb_id || "",
     kbName: record.kb_name || "",
@@ -57,7 +59,7 @@ function adaptSession(record) {
     messageCount: record.message_count || 0,
     time: formatSessionTime(createdAt),
     createdAt: createdAt,
-    updatedAt: record.updated_at || "",
+    updatedAt: record.ended_at || record.updated_at || "",
     // 分组依据
     group: getSessionGroup(createdAt),
   };
@@ -103,7 +105,7 @@ function groupSessionsByTime(sessions) {
 function getSessionGroup(isoString) {
   if (!isoString) return "更早";
   try {
-    const d = new Date(isoString.replace("Z", "").replace("+00:00", ""));
+    const d = new Date(isoString);
     if (isNaN(d.getTime())) return "更早";
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -122,7 +124,7 @@ function getSessionGroup(isoString) {
 function formatSessionTime(isoString) {
   if (!isoString) return "";
   try {
-    const d = new Date(isoString.replace("Z", "").replace("+00:00", ""));
+    const d = new Date(isoString);
     if (isNaN(d.getTime())) return "";
     const hh = String(d.getHours()).padStart(2, "0");
     const mm = String(d.getMinutes()).padStart(2, "0");
@@ -136,12 +138,12 @@ function formatSessionTime(isoString) {
 
 /**
  * 后端消息记录 → 视图模型
- * 后端字段：id, session_id, role (user/assistant), content, citations, feedback_status,
+ * 后端字段：message_id, session_id, role (user/assistant), content, citations, feedback_status,
  *           low_confidence, status_code, created_at
  */
 function adaptMessage(record) {
   const msg = {
-    id: record.id || "",
+    id: record.message_id || record.id || "",
     sessionId: record.session_id || "",
     role: record.role || "user",
     text: record.content || "",
@@ -233,27 +235,40 @@ function parseContentToParagraphs(content) {
 
 /**
  * 后端引用记录 → 视图模型
- * 后端字段（实际可能返回）：id, document_name, chunk_path, excerpt, similarity, rerank_score,
- *                           kb_name, updated_at, permission
+ * 后端字段：chunk_id, doc_name, chapter_path, content, similarity_score,
+ *           rerank_score, kb_name, updated_at, permission
  */
 function adaptCitation(record) {
+  const similarity = record.similarity_score != null
+    ? record.similarity_score
+    : record.similarity;
+  const rerank = record.rerank_score != null
+    ? record.rerank_score
+    : record.rerank;
+
   return {
-    id: record.id || "",
-    title: record.document_name || record.title || "",
+    id: record.chunk_id || record.id || "",
+    title: record.doc_name || record.document_name || record.title || "",
     kb: record.kb_name || record.kb || "",
-    path: record.chunk_path || record.path || "",
-    updatedAt: record.updated_at || record.updatedAt || "",
-    similarity: record.similarity != null ? String(record.similarity) : "",
-    rerank: record.rerank_score != null ? String(record.rerank_score) : (record.rerank || ""),
-    rerankPercent: formatScorePercent(record.rerank_score || record.rerank),
-    scoreLevel: getScoreLevel(record.rerank_score || record.rerank),
-    excerpt: record.excerpt || "",
+    path: record.chapter_path || record.chunk_path || record.path || "",
+    updatedAt: formatDisplayDate(record.updated_at || record.updatedAt),
+    similarity: similarity != null ? String(similarity) : "",
+    rerank: rerank != null ? String(rerank) : "",
+    rerankPercent: formatScorePercent(rerank),
+    scoreLevel: getScoreLevel(rerank),
+    excerpt: record.content || record.excerpt || "",
     highlight: record.highlight || "",
     // 权限保护：permitted 仅由后端返回的 permission 字段决定
     // 若后端未返回 permission 字段或值为 restricted，视为受限
     permitted: record.permission !== "restricted" && record.permission !== "denied",
     permission: record.permission || "granted",
   };
+}
+
+function formatDisplayDate(value) {
+  if (!value) return "";
+  const match = String(value).match(/^\d{4}-\d{2}-\d{2}/);
+  return match ? match[0] : String(value);
 }
 
 function formatScorePercent(score) {
@@ -282,8 +297,8 @@ function adaptUserProfile(profile) {
     userId: profile.user_id || "",
     name: profile.name || "",
     avatarUrl: profile.avatar_url || "",
-    department: profile.department || "",
-    role: profile.role || "",
+    department: profile.department_name || profile.department || "",
+    role: profile.role_name || profile.role || "",
     isNewUser: profile.is_new_user || false,
   };
 }

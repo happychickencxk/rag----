@@ -47,7 +47,7 @@ Page({
       let found = null;
       if (this.data.citationId) {
         found = citations.find(
-          (c) => c.id === this.data.citationId
+          (c) => (c.chunk_id || c.id) === this.data.citationId
         );
       }
       if (!found && citations.length > 0) {

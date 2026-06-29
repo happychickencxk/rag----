@@ -5,7 +5,10 @@ const assert = require("node:assert");
 const test = require("node:test");
 
 // 直接引用 SSE 解析器（纯 JS 无微信依赖）
-const { createSSEParser } = require("../../utils/sse");
+const {
+  createSSEParser,
+  createUTF8ChunkDecoder,
+} = require("../../utils/sse");
 
 test("SSE 解析：单个完整 data 事件", () => {
   const chunks = [];
@@ -53,7 +56,7 @@ test("SSE 解析：一个事件被拆到多个 chunk", () => {
   assert.deepStrictEqual(chunks, ["拆分文本"]);
 });
 
-test("SSE 解析：中文 UTF-8 跨 chunk", () => {
+test("SSE 解析：中文 UTF-8 字节跨 chunk", () => {
   const chunks = [];
   const parser = createSSEParser({
     onText(content) {
@@ -61,9 +64,17 @@ test("SSE 解析：中文 UTF-8 跨 chunk", () => {
     },
   });
 
-  // 模拟中文字符跨 chunk
-  parser.push('data: {"content": "中');
-  parser.push('文测试", "done": false}\n\n');
+  const decoder = createUTF8ChunkDecoder();
+  const payload = Buffer.from(
+    'data: {"content": "中文测试", "done": false}\n\n',
+    "utf8"
+  );
+  const chineseStart = payload.indexOf(Buffer.from("中", "utf8"));
+  const splitAt = chineseStart + 1;
+
+  parser.push(decoder.push(payload.subarray(0, splitAt)));
+  parser.push(decoder.push(payload.subarray(splitAt)));
+  parser.push(decoder.finish());
   parser.finish();
 
   assert.deepStrictEqual(chunks, ["中文测试"]);

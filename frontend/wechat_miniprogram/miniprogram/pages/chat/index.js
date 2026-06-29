@@ -25,7 +25,7 @@ Page({
     loading: true,
   },
 
-  onShow() {
+  async onShow() {
     const app = getApp();
     const tabBar = this.getTabBar && this.getTabBar();
     if (tabBar) {
@@ -38,9 +38,9 @@ Page({
     }
 
     // 加载知识库列表
-    this.loadKnowledgeBases();
+    await this.loadKnowledgeBases();
 
-    // 恢复当前知识库
+    // 列表返回后再恢复知识库，避免首次进入时没有默认选中项
     this.restoreSelectedKb();
 
     // 从历史页恢复会话消息

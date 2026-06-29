@@ -8,7 +8,7 @@
     </view>
     <view class="field border">
       <view class="label">AI 回答摘要</view>
-      <view class="value muted">{{answer ? answer.slice(0, 120) + (answer.length > 120 ? '...' : '') : '--'}}</view>
+      <view class="value muted">{{answerSummary || '--'}}</view>
     </view>
   </view>
 

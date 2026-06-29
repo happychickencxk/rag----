@@ -82,8 +82,8 @@ async function getProfile() {
   storage.saveUserInfo({
     user_id: result.user_id,
     name: result.name || "",
-    role: result.role || "",
-    department: result.department || "",
+    role: result.role_name || result.role || "",
+    department: result.department_name || result.department || "",
     avatar_url: result.avatar_url || "",
     is_new_user: result.is_new_user,
   });

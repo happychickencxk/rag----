@@ -8,17 +8,23 @@
     <view class="login-title">企业知识库助手</view>
     <view class="login-desc">基于 AI 的企业内部知识检索与问答</view>
 
+    <view wx:if="{{status === 'error'}}" class="login-error">
+      <text>{{errorMsg}}</text>
+    </view>
+
     <button
       class="login-btn"
       bindtap="handleLogin"
-      aria-label="进入体验"
+      loading="{{status === 'loading'}}"
+      disabled="{{status === 'loading'}}"
+      aria-label="微信一键登录"
     >
-      <text>{{loading ? '正在进入...' : '进入体验'}}</text>
+      <text>{{status === 'loading' ? '正在登录...' : '微信一键登录'}}</text>
     </button>
 
     <view class="login-hint">
-      <text>当前为体验版本，暂不校验微信登录</text>
-      <text class="login-hint-sub">后续将接入微信一键登录接口</text>
+      <text>当前连接本地 Mock 服务进行接口验收</text>
+      <text class="login-hint-sub">正式环境将使用相同的登录接口契约</text>
     </view>
   </view>
 

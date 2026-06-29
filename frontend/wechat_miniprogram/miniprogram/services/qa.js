@@ -3,11 +3,11 @@
  * 封装问答查询、SSE 流式、会话和反馈接口。
  */
 
-const { post, get, del } = require("../utils/request");
+const { post, get, delete: deleteRequest } = require("../utils/request");
 const config = require("../config/api");
 const storage = require("../utils/storage");
 const { normalizeUrl, generateRequestId, BusinessError } = require("../utils/request");
-const { createSSEParser } = require("../utils/sse");
+const { createSSEParser, createUTF8ChunkDecoder } = require("../utils/sse");
 
 /**
  * 非流式问答。
@@ -85,6 +85,7 @@ function querySSE(params) {
       console.warn("[SSE] 解析警告:", err);
     },
   });
+  const chunkDecoder = createUTF8ChunkDecoder();
 
   // 使用 wx.request 的 enableChunked 能力
   requestTask = wx.request({
@@ -107,6 +108,10 @@ function querySSE(params) {
         return;
       }
       // 确保处理完所有剩余数据
+      const remainingText = chunkDecoder.finish();
+      if (remainingText) {
+        parser.push(remainingText);
+      }
       parser.finish();
     },
     fail(err) {
@@ -133,16 +138,8 @@ function querySSE(params) {
     requestTask.onChunkReceived((chunk) => {
       if (aborted) return;
       try {
-        // chunk.data 可能是 ArrayBuffer 或文本
-        let text = "";
-        if (typeof chunk.data === "string") {
-          text = chunk.data;
-        } else if (chunk.data instanceof ArrayBuffer) {
-          // 使用 TextDecoder 处理 UTF-8
-          text = decodeUTF8(chunk.data);
-        } else {
-          text = String(chunk.data);
-        }
+        // 解码器会保留跨网络分块的 UTF-8 残留字节
+        const text = chunkDecoder.push(chunk.data);
         parser.push(text);
       } catch (e) {
         console.warn("[SSE] chunk 处理警告:", e);
@@ -156,52 +153,10 @@ function querySSE(params) {
       if (requestTask) {
         requestTask.abort();
       }
+      chunkDecoder.reset();
       parser.reset();
     },
   };
-}
-
-/**
- * 解码 UTF-8 ArrayBuffer 为字符串。
- * 处理可能被截断的多字节字符。
- */
-function decodeUTF8(buffer) {
-  // 微信小程序中，优先使用 TextDecoder
-  if (typeof TextDecoder !== "undefined") {
-    return new TextDecoder("utf-8").decode(buffer);
-  }
-  // 回退方案：使用 String.fromCharCode
-  const bytes = new Uint8Array(buffer);
-  let result = "";
-  let i = 0;
-  while (i < bytes.length) {
-    const byte = bytes[i];
-    if (byte < 0x80) {
-      result += String.fromCharCode(byte);
-      i += 1;
-    } else if (byte < 0xE0) {
-      result += String.fromCharCode(((byte & 0x1F) << 6) | (bytes[i + 1] & 0x3F));
-      i += 2;
-    } else if (byte < 0xF0) {
-      result += String.fromCharCode(
-        ((byte & 0x0F) << 12) |
-          ((bytes[i + 1] & 0x3F) << 6) |
-          (bytes[i + 2] & 0x3F)
-      );
-      i += 3;
-    } else {
-      // 四字节字符用两个 charCode 表示
-      const cp =
-        ((byte & 0x07) << 18) |
-        ((bytes[i + 1] & 0x3F) << 12) |
-        ((bytes[i + 2] & 0x3F) << 6) |
-        (bytes[i + 3] & 0x3F);
-      result += String.fromCharCode(0xD800 + ((cp - 0x10000) >> 10));
-      result += String.fromCharCode(0xDC00 + ((cp - 0x10000) & 0x3FF));
-      i += 4;
-    }
-  }
-  return result;
 }
 
 // ===== 会话管理 =====
@@ -256,7 +211,7 @@ async function getMessages(sessionId, params) {
  * @returns {Promise<void>}
  */
 async function deleteSession(sessionId) {
-  return del(`/api/v1/qa/sessions/${sessionId}`);
+  return deleteRequest(`/api/v1/qa/sessions/${sessionId}`);
 }
 
 // ===== 引用 =====

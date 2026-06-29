@@ -17,6 +17,7 @@
 .
 ├─ .ai-agent/       # 给后续 AI agent 读取和持续更新的项目上下文
 ├─ docs/            # 需求、设计、接口等 Word 文档原件
+├─ mock-server/     # 按接口文档实现的本地模拟后端与契约测试
 └─ frontend/
    ├─ figma_make/          # Figma Make 生成的 React/Vite 原型源码
    └─ wechat_miniprogram/  # 后续实际开发的微信小程序工程
@@ -31,7 +32,8 @@
 - `frontend/figma_make/src/imports/rag_miniprogram_context.md`：小程序端产品背景压缩说明。
 - `frontend/figma_make/plans/ui-misty-firefly.md`：已有 UI 规划与设计 token。
 - `frontend/wechat_miniprogram/miniprogram/pages/chat/index.*`：当前小程序问答首页入口。
-- `frontend/wechat_miniprogram/miniprogram/utils/mock.js`：迁移阶段使用的模拟数据。
+- `mock-server/server.js`：小程序联调使用的本地模拟后端。
+- `mock-server/contract.test.js`：接口字段、鉴权和 SSE 契约测试。
 
 ## 本地运行
 
@@ -50,6 +52,15 @@ cd frontend\wechat_miniprogram
 ```
 
 用微信开发者工具打开 `frontend/wechat_miniprogram`，预览和调试小程序页面。
+
+真实后端就绪前，可先启动本地 Mock：
+
+```powershell
+node mock-server\server.js
+```
+
+Mock 地址为 `http://localhost:8000`，与当前小程序
+`miniprogram/config/api.js` 的开发配置一致。
 
 ## 开发约定
 

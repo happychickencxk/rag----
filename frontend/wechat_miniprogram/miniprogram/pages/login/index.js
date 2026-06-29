@@ -1,27 +1,41 @@
+const { wechatLogin } = require("../../services/auth");
+const { hasValidToken } = require("../../utils/storage");
+
 Page({
   data: {
-    loading: false,
+    status: "idle", // idle | loading | error
+    errorMsg: "",
   },
 
   onLoad() {
-    // 体验版：直接允许进入，不校验 Token
+    if (hasValidToken()) {
+      wx.switchTab({ url: "/pages/chat/index" });
+    }
   },
 
   onShow() {
-    // 体验版：不自动跳转
+    if (hasValidToken()) {
+      wx.switchTab({ url: "/pages/chat/index" });
+    }
   },
 
   /**
-   * 体验版登录：点击直接进入问答页。
-   * 后续正式版将接入 wx.login() 和微信登录接口。
+   * 调用 wx.login 获取临时凭证，再由后端换取访问令牌。
    */
-  handleLogin() {
-    if (this.data.loading) return;
-    this.setData({ loading: true });
+  async handleLogin() {
+    if (this.data.status === "loading") return;
+    this.setData({ status: "loading", errorMsg: "" });
 
-    // 模拟短暂加载后进入
-    setTimeout(() => {
+    try {
+      await wechatLogin();
+      wx.showToast({ title: "登录成功", icon: "success" });
       wx.switchTab({ url: "/pages/chat/index" });
-    }, 300);
+    } catch (error) {
+      let errorMsg = error.message || "登录失败，请检查网络后重试";
+      if (error.code === 500 || error.code === 503) {
+        errorMsg = "服务暂时不可用，请稍后重试";
+      }
+      this.setData({ status: "error", errorMsg });
+    }
   },
 });

@@ -85,9 +85,10 @@
 
 ## 当前限制
 
-- 小程序端仍使用 `utils/mock.js`，没有真实 API 请求层。
-- 还没有统一的请求封装、认证 token 管理、SSE 流处理和错误映射。
-- 文件中心目前只有前端选择和状态展示，上传、下载、文件列表接口尚未定义和对接。
+- 页面已通过服务层请求 HTTP API，不再直接依赖 `utils/mock.js`。
+- 本地 Mock 契约和微信开发者工具验收已通过，真实后端地址、证书和合法域名仍待联调。
+- 文件中心已接入上传接口；接口文档没有安全下载 URL，因此真实下载仍不可用。
+- 语音输入和个人页统计缺少后端接口，当前只保留入口或占位。
 - `frontend/wechat_miniprogram` 原本是云开发 QuickStart 模板，部分旧模板页面和云函数仍存在，但已从 `app.json` 页面入口移除。
 - `frontend/wechat_miniprogram` 曾带有模板自带的独立 `.git` 元数据；为便于外层仓库统一管理，本轮已移除内嵌 `.git`，源码将由根仓库跟踪。
 
@@ -104,6 +105,7 @@
 - `miniprogram/services/document.js`：文档列表和文件上传。
 - `miniprogram/adapters/index.js`：后端 snake_case 到前端视图模型的集中映射，含反馈原因映射。
 - `miniprogram/tests/unit/`：纯 Node 单元测试，覆盖 URL 规范化、响应解析、Token 刷新、SSE 解析、反馈映射、引用权限、文件校验和字段适配。
+- 根目录 `mock-server/`：按接口文档实现的本地模拟后端和独立契约测试。
 
 ## 后续拆分建议
 

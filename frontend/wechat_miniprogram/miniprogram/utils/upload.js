@@ -37,6 +37,7 @@ function uploadFile(opts) {
   if (token) {
     header["Authorization"] = `Bearer ${token}`;
   }
+  let retryCount = 0;
   // 注意：wx.uploadFile 自动设置 multipart/form-data 的 Content-Type 和边界，
   // 不要手动设置 Content-Type。
 
@@ -76,6 +77,15 @@ function uploadFile(opts) {
     function parseUploadResponse(statusCode, data) {
       return new Promise((resolve, reject) => {
         if (statusCode === 401) {
+          if (retryCount >= config.MAX_RETRY) {
+            const { emitAuthExpired } = require("./request");
+            emitAuthExpired();
+            const error = new BusinessError(401, "登录已过期");
+            error.httpStatus = 401;
+            reject(error);
+            return;
+          }
+          retryCount += 1;
           refreshToken().then((ok) => {
             if (ok) {
               const newToken = storage.getAccessToken();
@@ -86,22 +96,30 @@ function uploadFile(opts) {
             } else {
               const { emitAuthExpired } = require("./request");
               emitAuthExpired();
-              reject(new BusinessError(401, "登录已过期"));
+              const error = new BusinessError(401, "登录已过期");
+              error.httpStatus = 401;
+              reject(error);
             }
           });
           return;
         }
 
         if (statusCode === 403) {
-          reject(new BusinessError(403, "无权限上传文件到该知识库"));
+          const error = new BusinessError(403, "无权限上传文件到该知识库");
+          error.httpStatus = 403;
+          reject(error);
           return;
         }
         if (statusCode === 413) {
-          reject(new BusinessError(413, "文件超过 20MB 大小限制"));
+          const error = new BusinessError(413, "文件超过 20MB 大小限制");
+          error.httpStatus = 413;
+          reject(error);
           return;
         }
         if (statusCode < 200 || statusCode >= 300) {
-          reject(new BusinessError(statusCode, `上传失败（${statusCode}）`));
+          const error = new BusinessError(statusCode, `上传失败（${statusCode}）`);
+          error.httpStatus = statusCode;
+          reject(error);
           return;
         }
 

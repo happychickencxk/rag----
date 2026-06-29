@@ -1,88 +1,65 @@
-# 小程序 API 合规清单
+# 小程序 API 合规与验收清单
 
-> 生成日期：2026-06-27。对照接口文档逐一检查。
+> 更新日期：2026-06-29。接口依据为
+> `docs/06-企业知识库RAG问答系统-前后端对接API接口文档.docx`。
 
-## 认证接口
+## 验收结论
 
-| 接口 | 调用模块 | 页面 | 请求字段 | 响应字段 | 错误处理 | 测试结果 | 联调状态 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `POST /api/v1/auth/wechat-login` | `services/auth.js` | `pages/login/index` | code, nick_name, avatar_url | user_id, name, role, is_new_user, access_token, refresh_token, expires_in | 400/500/网络错误，可重试 | 单元通过 | 阻塞：后端未就绪 |
-| `POST /api/v1/auth/refresh` | `utils/request.js` (refreshToken) | 全局自动 | refresh_token | access_token, refresh_token, expires_in | 失败后清理登录态 | 单元通过 | 阻塞 |
-| `GET /api/v1/auth/profile` | `services/auth.js` | `pages/profile/index` | Authorization header | user_id, name, department, role, avatar_url | 失败时回退本地缓存 | 单元通过 | 阻塞 |
-| `POST /api/v1/auth/logout` | `services/auth.js` | `pages/profile/index` | - | - | 服务端失败也清理本地状态 | 单元通过 | 阻塞 |
+- 本地 Mock 接口契约测试通过，覆盖认证、知识库、问答、SSE、会话、引用、反馈和文档接口。
+- 微信开发者工具端到端验收通过：登录、知识库加载、流式问答、历史恢复、引用详情、反馈提交和文件中心入口均可运行。
+- 真实后端仍未提供可联调地址，因此本文中的“通过”仅表示前端和本地 Mock 符合当前文档契约，不代表生产后端已经验收。
 
-## 知识库接口
+## 核心接口
 
-| 接口 | 调用模块 | 页面 | 请求字段 | 响应字段 | 错误处理 | 测试结果 | 联调状态 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `GET /api/v1/knowledge-bases` | `services/knowledge.js` | `pages/knowledge/index`, `pages/chat/index` (弹层), `pages/files/index` | page, size, keyword, department_id, status | records (id, name, description, department, doc_count, status, updated_at), total, page, size, pages | 加载/空/错误/重试 | 单元通过 | 阻塞 |
-| `GET /api/v1/knowledge-bases/{kbId}` | `services/knowledge.js` | （预留，当前未使用） | - | 知识库详情 | 404/403 | 单元框架就绪 | 阻塞 |
+| 接口 | 前端模块 | Mock 契约 | 开发者工具 | 真实后端 |
+| --- | --- | --- | --- | --- |
+| `POST /api/v1/auth/wechat-login` | `services/auth.js` | 通过 | 通过 | 待联调 |
+| `POST /api/v1/auth/refresh` | `utils/request.js` | 通过 | 自动测试通过 | 待联调 |
+| `GET /api/v1/auth/profile` | `services/auth.js` | 通过 | 通过 | 待联调 |
+| `POST /api/v1/auth/logout` | `services/auth.js` | 通过 | 通过 | 待联调 |
+| `GET /api/v1/knowledge-bases` | `services/knowledge.js` | 通过 | 通过 | 待联调 |
+| `GET /api/v1/knowledge-bases/{kbId}` | `services/knowledge.js` | 通过 | 页面暂未使用 | 待联调 |
+| `POST /api/v1/qa/query` 非流式 | `services/qa.js` | 通过 | 作为 SSE 回退 | 待联调 |
+| `POST /api/v1/qa/query` SSE | `services/qa.js` | 通过 | 通过 | 待联调 |
+| `GET/POST /api/v1/qa/sessions` | `services/qa.js` | 通过 | 通过 | 待联调 |
+| `GET /api/v1/qa/sessions/{id}/messages` | `services/qa.js` | 通过 | 通过 | 待联调 |
+| `DELETE /api/v1/qa/sessions/{id}` | `services/qa.js` | 通过 | 契约测试通过 | 待联调 |
+| `GET .../messages/{id}/citations` | `services/qa.js` | 通过 | 通过 | 待联调 |
+| `POST .../messages/{id}/feedback` | `services/qa.js` | 通过 | 通过 | 待联调 |
+| `GET /api/v1/documents` | `services/document.js` | 通过 | 页面暂未列远端文档 | 待联调 |
+| `POST /api/v1/documents/upload` | `services/document.js` | 通过 | 文件入口通过 | 待联调 |
 
-## 问答接口
+## 已验证规范
 
-| 接口 | 调用模块 | 页面 | 请求字段 | 响应字段 | 错误处理 | 测试结果 | 联调状态 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `POST /api/v1/qa/query` (非流式) | `services/qa.js` (query) | `pages/chat/index` (回退) | kb_id, question, session_id, stream=false | content, citations, message_id, low_confidence | 400/401/403/500/超时 | 单元通过 | 阻塞 |
-| `POST /api/v1/qa/query` (SSE) | `services/qa.js` (querySSE) | `pages/chat/index` (默认) | kb_id, question, session_id, stream=true | SSE data 事件：content, done, message_id, citations | 拆包/粘包/UTF-8/超时/中断/回退非流式 | 11项 SSE 测试通过 | 阻塞 |
+- 请求统一携带 `X-Client-Type: wechat`、`X-Request-Id` 和 Bearer Token。
+- 401 并发请求共享一次刷新操作；刷新后仍为 401 时最多重放一次并清理登录态。
+- API 地址规范化后只出现一次 `/api/v1`。
+- 知识库使用 `kb_id`、`department_name`、`chunk_count` 等正式字段。
+- 会话和消息使用 `session_id`、`started_at`、`message_id`。
+- 引用使用 `chunk_id`、`doc_name`、`chapter_path`、`content`、`similarity_score` 和 `rerank_score`。
+- SSE 解码器能处理中文 UTF-8 字符从字节中间拆包，完成事件返回 `message_id` 和引用。
+- 反馈类型只发送 `like`、`dislike`、`no_citation`，细分原因写入 `description`。
+- 上传文件限制为 `pdf/docx/md/txt/html/csv` 且不超过 20MB。
 
-## 会话接口
+## 测试结果
 
-| 接口 | 调用模块 | 页面 | 请求字段 | 响应字段 | 错误处理 | 测试结果 | 联调状态 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `POST /api/v1/qa/sessions` | `services/qa.js` (createSession) | `pages/chat/index` | kb_id | id/session_id | 创建失败阻止发送 | 单元通过 | 阻塞 |
-| `GET /api/v1/qa/sessions` | `services/qa.js` (getSessions) | `pages/history/index` | page, size, kb_id | records (id, title, kb_name, message_count, created_at, preview), total | 加载/空/错误/重试 | 单元通过 | 阻塞 |
-| `GET /api/v1/qa/sessions/{id}/messages` | `services/qa.js` (getMessages) | `pages/history/index` (恢复) | page, size | records (id, session_id, role, content, citations, feedback_status), total | 加载失败提示 | 单元通过 | 阻塞 |
-| `DELETE /api/v1/qa/sessions/{id}` | `services/qa.js` (deleteSession) | `pages/history/index` | - | - | 删除失败提示 | 单元通过 | 阻塞 |
+- 小程序单元测试：52 项，全部通过。
+- Mock 契约测试：1 项端到端契约套件，全部通过。
+- JavaScript 语法检查：35 个文件通过。
+- JSON 解析检查：21 个文件通过。
+- 微信开发者工具检查：登录、问答、历史、引用、反馈、我的和文件中心通过。
 
-## 引用接口
+运行命令：
 
-| 接口 | 调用模块 | 页面 | 请求字段 | 响应字段 | 错误处理 | 测试结果 | 联调状态 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `GET /api/v1/qa/sessions/{sid}/messages/{mid}/citations` | `services/qa.js` (getCitations) | `pages/citation/detail` | sessionId, messageId (路径参数) | document_name, chunk_path, excerpt, similarity, rerank_score, permission | 403 不展示原文；缺失字段条件渲染 | 4项引用权限测试通过 | 阻塞 |
+```powershell
+node --test frontend\wechat_miniprogram\miniprogram\tests\unit\*.test.js
+node --test mock-server\contract.test.js
+```
 
-## 反馈接口
+## 剩余边界
 
-| 接口 | 调用模块 | 页面 | 请求字段 | 响应字段 | 错误处理 | 测试结果 | 联调状态 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `POST /api/v1/qa/sessions/{sid}/messages/{mid}/feedback` | `services/qa.js` (submitFeedback) | `pages/chat/index` (快速反馈), `pages/feedback/submit` (详细反馈) | feedback_type (like/dislike/no_citation), description ([原因前缀] + 说明) | - | 防止重复提交；提交失败提示 | 7项反馈映射测试通过 | 阻塞 |
-
-## 文档接口
-
-| 接口 | 调用模块 | 页面 | 请求字段 | 响应字段 | 错误处理 | 测试结果 | 联调状态 |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| `GET /api/v1/documents` | `services/document.js` | （预留） | kb_id (必填), page, size, keyword | records, total | - | 单元框架就绪 | 阻塞 |
-| `POST /api/v1/documents/upload` | `services/document.js` (upload) | `pages/files/index` | wx.uploadFile: file, kb_id, source, version, tags, permission_scope | - | 401/403/413/网络错误；格式和大小校验 | 9项文件校验测试通过 | 阻塞 |
-
-## 全局安全与合规
-
-| 检查项 | 状态 |
-| --- | --- |
-| API 地址只包含一次 /api/v1 | ✅ 测试通过 |
-| 统一响应 code 非 200 抛出业务错误 | ✅ 测试通过 |
-| 并发 401 只刷新一次 | ✅ 测试通过 |
-| 刷新失败清理 Token | ✅ 测试通过 |
-| 受限引用不泄露完整 excerpt | ✅ 测试通过 |
-| 反馈映射符合 API-Q07 枚举 (like/dislike/no_citation) | ✅ 测试通过 |
-| 文件扩展名仅允许 pdf/docx/md/txt/html/csv | ✅ 测试通过 |
-| 文件 20MB 上限校验 | ✅ 测试通过 |
-| SSE 拆包/粘包/中文边界/done 事件 | ✅ 11项测试通过 |
-| 字段适配 snake_case → camelCase | ✅ 7项测试通过 |
-| 所有 JS 语法检查通过 | ✅ |
-| 所有 JSON 可解析 | ✅ |
-| git diff --check 无空白警告 | ✅ |
-
-## 已知阻塞项
-
-1. **后端未就绪**：API 文档中所有主要接口完成情况均为"待开发"，真实联调无法进行。
-2. **后端基础 URL**：当前使用 `http://localhost:8000` 作为开发占位，实际部署时需替换。
-3. **引用详情字段不足**：接口未返回 kb_name、updated_at、highlight，页面已条件渲染。
-4. **文件下载未实现**：接口没有安全下载 URL，storage_path 不能作为客户端下载地址，下载按钮已禁用并说明原因。
-5. **清空全部历史**：没有批量删除接口，已提示用户逐条删除。
-6. **统计数据**：历史问答数、反馈记录数、常用知识库无对应接口，显示 "--"。
-7. **微信开发者工具验证**：CLI 环境无法自动控制开发者工具进行编译验证，需人工在微信开发者工具中确认。
-
-## 测试统计
-
-- 单元测试：51 项，全部通过
-- Node 语法检查：miniprogram 下所有 JS 文件通过
-- JSON 解析检查：miniprogram 下所有 JSON 文件通过
+1. 真实后端地址、证书、合法域名和生产 Token 尚未联调。
+2. 接口未提供安全下载 URL，文件中心不能实现真实下载。
+3. 个人页三项统计没有对应接口，当前显示 `--`。
+4. 语音输入没有接口和产品规范，当前只保留入口。
+5. 知识库详情接口已有服务封装，但当前页面没有独立详情视图。

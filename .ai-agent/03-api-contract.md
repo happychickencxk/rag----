@@ -265,6 +265,16 @@ data: {"content": "", "done": true, "citations": [], "message_id": "xxx"}
 | `EmptyHistory` | 会话列表为空 |
 | `EmptyKnowledgeBase` | 无可访问知识库 |
 
+## 本地 Mock 验收基线
+
+截至 2026-06-29，根目录 `mock-server/server.js` 按本文契约提供本地联调服务：
+
+- 需要鉴权的接口校验 `Authorization: Bearer {access_token}`。
+- 知识库、会话、消息和引用分别使用 `kb_id`、`session_id`、`message_id`、`chunk_id`。
+- 非流式回答返回 `question`、`answer`、`model`、`latency_ms` 和引用。
+- SSE 返回 `text/event-stream`，中文跨字节分块和 `done=true` 完成事件已验证。
+- `mock-server/contract.test.js` 只用于验证前端契约，不能替代真实后端验收。
+
 ## 对接前必须确认的差异
 
 - 概要设计同时提到 WebSocket 和 SSE；API-Q02 明确规定 `POST /api/v1/qa/query` 返回 SSE，小程序首版以 API-Q02 为准。
