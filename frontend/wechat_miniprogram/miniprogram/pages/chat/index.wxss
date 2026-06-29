@@ -219,7 +219,7 @@
 
 .citation-title {
   gap: 12rpx;
-  margin-left: 70rpx;
+  margin-left: 165rpx;
   color: #1677ff;
   font-size: 26rpx;
   font-weight: 600;
@@ -535,7 +535,7 @@
 
 .sheet-head {
   height: 72rpx;
-  padding: 0 20rpx 0 44rpx;
+  padding: 0 0 0 44rpx;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -551,15 +551,19 @@
 .sheet-close {
   width: 48rpx;
   height: 48rpx;
+  margin: 0;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .sheet-close-icon {
   width: 30rpx;
   height: 30rpx;
   filter: brightness(0);
+  margin-left:0rpx;
   opacity: 0.46;
 }
 
