@@ -109,7 +109,11 @@ function parseResponse(res) {
     throw err;
   }
   if (statusCode === 403) {
-    const err = new BusinessError(403, "无访问权限");
+    const err = new BusinessError(
+      403,
+      (data && data.message) || "无访问权限",
+      data && data.data
+    );
     err.httpStatus = 403;
     throw err;
   }

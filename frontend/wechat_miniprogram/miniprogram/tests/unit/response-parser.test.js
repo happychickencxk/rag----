@@ -23,7 +23,11 @@ function parseResponse(res) {
     throw err;
   }
   if (statusCode === 403) {
-    const err = new BusinessError(403, "无访问权限");
+    const err = new BusinessError(
+      403,
+      (data && data.message) || "无访问权限",
+      data && data.data
+    );
     err.httpStatus = 403;
     throw err;
   }
@@ -96,6 +100,17 @@ test("HTTP 403 抛出无权限错误", () => {
         data: {},
       }),
     (err) => err.httpStatus === 403
+  );
+});
+
+test("HTTP 403 优先显示后端返回的原因", () => {
+  assert.throws(
+    () =>
+      parseResponse({
+        statusCode: 403,
+        data: { code: 403, message: "账号已停用或锁定", data: null },
+      }),
+    (err) => err.message === "账号已停用或锁定"
   );
 });
 

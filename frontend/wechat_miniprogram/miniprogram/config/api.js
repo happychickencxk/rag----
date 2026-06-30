@@ -5,7 +5,10 @@
 
 // API 源地址，不包含 /api/v1 后缀
 // 开发环境默认值，实际部署时替换为真实地址
-const API_ORIGIN = "http://localhost:8000";
+const API_ORIGIN = "http://127.0.0.1:8000";
+
+// 仅供本机开发者工具使用：wx.login 无可用 code 时使用固定开发身份
+const ALLOW_DEV_LOGIN_FALLBACK = true;
 
 // 数据源模式："mock" 使用本地模拟数据，"api" 使用真实后端
 const DATA_SOURCE = "api";
@@ -27,6 +30,7 @@ const MAX_RETRY = 1;
 
 module.exports = {
   API_ORIGIN,
+  ALLOW_DEV_LOGIN_FALLBACK,
   DATA_SOURCE,
   REQUEST_TIMEOUT,
   SSE_TIMEOUT,

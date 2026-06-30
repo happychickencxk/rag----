@@ -23,8 +23,8 @@
     </button>
 
     <view class="login-hint">
-      <text>当前连接本地 Mock 服务进行接口验收</text>
-      <text class="login-hint-sub">正式环境将使用相同的登录接口契约</text>
+      <text>当前连接本地 RAG 后端进行接口验收</text>
+      <text class="login-hint-sub">开发者工具无法获取 code 时使用固定开发身份</text>
     </view>
   </view>
 
