@@ -28,6 +28,7 @@ Page({
 
     try {
       await wechatLogin();
+      getApp().clearCurrentSession();
       wx.showToast({ title: "登录成功", icon: "success" });
       wx.switchTab({ url: "/pages/chat/index" });
     } catch (error) {

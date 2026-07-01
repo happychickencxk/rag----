@@ -14,8 +14,10 @@ test("wx.login 无 code 时回退到固定开发身份", async () => {
   const originalPost = request.post;
   const originalSaveTokens = storage.saveTokens;
   const originalSaveUserInfo = storage.saveUserInfo;
+  const originalClearCurrentSession = storage.clearCurrentSession;
   const originalWx = global.wx;
   let requestData = null;
+  let sessionCleared = false;
 
   request.post = async (_url, data) => {
     requestData = data;
@@ -31,6 +33,9 @@ test("wx.login 无 code 时回退到固定开发身份", async () => {
   };
   storage.saveTokens = () => {};
   storage.saveUserInfo = () => {};
+  storage.clearCurrentSession = () => {
+    sessionCleared = true;
+  };
   global.wx = {
     login(options) {
       options.success({ errMsg: "login:fail no permission" });
@@ -43,10 +48,12 @@ test("wx.login 无 code 时回退到固定开发身份", async () => {
 
   assert.strictEqual(requestData.code, "devtools-stable-user");
   assert.strictEqual(result.user_id, "user-dev");
+  assert.strictEqual(sessionCleared, true);
 
   request.post = originalPost;
   storage.saveTokens = originalSaveTokens;
   storage.saveUserInfo = originalSaveUserInfo;
+  storage.clearCurrentSession = originalClearCurrentSession;
   global.wx = originalWx;
   delete require.cache[authPath];
 });

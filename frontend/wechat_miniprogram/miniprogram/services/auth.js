@@ -64,6 +64,8 @@ async function wechatLogin(profile) {
     role: result.role || "",
     is_new_user: result.is_new_user,
   });
+  // 会话 ID 与用户及后端数据源绑定，重新登录后不能继续复用旧会话。
+  storage.clearCurrentSession();
 
   return result;
 }
