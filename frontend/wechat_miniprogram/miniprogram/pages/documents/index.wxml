@@ -1,0 +1,82 @@
+<custom-nav title="知识库文档" back="{{true}}" />
+
+<view class="documents-page">
+  <view class="kb-summary" wx:if="{{knowledgeBase}}">
+    <view class="kb-summary-main">
+      <view class="kb-summary-title-row">
+        <text class="kb-summary-title">{{knowledgeBase.name}}</text>
+        <text class="kb-summary-permission">可访问</text>
+      </view>
+      <view class="kb-summary-desc">{{knowledgeBase.description || '暂无知识库说明'}}</view>
+      <view class="kb-summary-meta">{{knowledgeBase.department}} · {{total}} 份文档 · {{knowledgeBase.chunkCount}} 个知识片段</view>
+    </view>
+    <button class="ask-button" bindtap="startQuestion">开始问答</button>
+  </view>
+
+  <view class="search-section">
+    <view class="search-box">
+      <image class="search-icon" src="/images/icons/search.png" mode="aspectFit" />
+      <input
+        class="search-input"
+        value="{{keyword}}"
+        placeholder="搜索文档名称或来源"
+        placeholder-class="search-placeholder"
+        bindinput="onSearch"
+      />
+    </view>
+  </view>
+
+  <view class="state-box" wx:if="{{status === 'loading' && !documents.length}}">
+    <view class="state-spinner"></view>
+    <text class="state-text">加载中...</text>
+  </view>
+
+  <view class="state-box" wx:elif="{{status === 'error'}}">
+    <image class="state-icon" src="/images/icons/warning-circle.png" mode="aspectFit" />
+    <view class="state-title">文档加载失败</view>
+    <view class="state-desc">{{errorMsg}}</view>
+    <view class="state-retry" bindtap="retry">点击重试</view>
+  </view>
+
+  <view class="state-box" wx:elif="{{status === 'empty'}}">
+    <image class="state-icon" src="/images/icons/upload-file.png" mode="aspectFit" />
+    <view class="state-title">{{keyword ? '未找到匹配文档' : '知识库暂无文档'}}</view>
+    <view class="state-desc">{{keyword ? '请调整关键词后重试。' : '上传并解析文档后会显示在这里。'}}</view>
+  </view>
+
+  <view class="document-list" wx:else>
+    <view class="document-cell" wx:for="{{documents}}" wx:key="id">
+      <view class="document-icon">
+        <image class="document-icon-image" src="/images/icons/upload-file.png" mode="aspectFit" />
+      </view>
+      <view class="document-body">
+        <view class="document-title-row">
+          <text class="document-title one-line">{{item.name}}</text>
+        </view>
+        <view class="document-status-row">
+          <view class="document-meta one-line">{{item.type}} · {{item.size}} · {{item.chunkCount}} 个片段</view>
+          <text class="document-status {{item.statusTone}}">{{item.statusText}}</text>
+        </view>
+        <view class="document-meta one-line">{{item.source || '企业内部上传'}} · 更新于 {{item.updatedAt || '未知'}}</view>
+        <view class="document-fail one-line" wx:if="{{item.failReason}}">{{item.failReason}}</view>
+      </view>
+      <button
+        class="download-button"
+        data-id="{{item.id}}"
+        catchtap="download"
+        disabled="{{downloadingId === item.id}}"
+        aria-label="下载文档"
+      >
+        <image class="download-icon" src="/images/icons/share.svg" mode="aspectFit" />
+      </button>
+    </view>
+
+    <view class="load-more" wx:if="{{hasMore}}">
+      <text class="load-more-text" wx:if="{{status === 'loading'}}">加载更多...</text>
+      <text class="load-more-action" wx:else bindtap="loadMore">加载更多</text>
+    </view>
+    <view class="load-more" wx:if="{{!hasMore && documents.length}}">
+      <text class="load-more-text">已加载全部 {{total}} 份文档</text>
+    </view>
+  </view>
+</view>

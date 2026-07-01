@@ -9,7 +9,7 @@
  * - 中文 UTF-8 字节被分割
  * - 空行分隔事件
  * - done=false 文本追加
- * - done=true 返回 message_id 和 citations
+ * - done=true 返回消息、引用和问答特殊状态
  * - 非 JSON 行、心跳行和结束前残留缓冲
  */
 
@@ -146,7 +146,7 @@ function createUTF8ChunkDecoder() {
  *
  * @param {object} [opts]
  * @param {function} [opts.onText] - 收到 content 追加文本时回调
- * @param {function} [opts.onDone] - 收到 done=true 事件时回调，参数 { message_id, citations }
+ * @param {function} [opts.onDone] - 收到 done=true 事件时回调
  * @param {function} [opts.onError] - 解析出错时回调
  * @returns {object} { push, finish }
  */
@@ -190,8 +190,14 @@ function createSSEParser(opts) {
       if (event.done === true) {
         if (onDone) {
           onDone({
+            session_id: event.session_id || "",
             message_id: event.message_id || "",
+            model: event.model || "",
+            latency_ms: event.latency_ms || 0,
+            low_confidence: Boolean(event.low_confidence),
+            status_code: event.status_code || "",
             citations: event.citations || [],
+            error: event.error || null,
           });
         }
       } else if (typeof event.content === "string") {

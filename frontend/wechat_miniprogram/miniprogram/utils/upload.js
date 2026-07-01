@@ -13,6 +13,7 @@ const { normalizeUrl, generateRequestId, BusinessError, refreshToken } = require
  *
  * @param {object} opts
  * @param {string} opts.filePath - 本地文件路径
+ * @param {string} opts.fileName - 原始文件名
  * @param {string} opts.kbId - 目标知识库 ID
  * @param {string} [opts.source] - 来源标识
  * @param {string} [opts.version] - 版本号
@@ -21,9 +22,18 @@ const { normalizeUrl, generateRequestId, BusinessError, refreshToken } = require
  * @returns {Promise<any>}
  */
 function uploadFile(opts) {
-  const { filePath, kbId, source, version, tags, permissionScope } = opts;
+  const {
+    filePath,
+    fileName,
+    kbId,
+    source,
+    version,
+    tags,
+    permissionScope,
+  } = opts;
 
   const formData = { kb_id: kbId };
+  if (fileName) formData.original_filename = fileName;
   if (source) formData.source = source;
   if (version) formData.version = version;
   if (tags) formData.tags = tags;

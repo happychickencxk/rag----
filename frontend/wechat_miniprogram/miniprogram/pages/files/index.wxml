@@ -5,11 +5,11 @@
   <view class="kb-indicator">
     <text class="kb-label">目标知识库：</text>
     <text class="kb-value">{{selectedKbName || '未选择'}}</text>
-    <text class="kb-change" bindtap="chooseFile">切换</text>
+    <text class="kb-change" catchtap="openKbPicker">切换</text>
   </view>
 
   <!-- 上传区域 -->
-  <view class="upload-section" bindtap="chooseFile">
+  <view class="upload-section {{canUpload ? '' : 'is-disabled'}}" bindtap="chooseFile">
     <view class="upload-visual">
       <image class="upload-visual-icon" src="/images/icons/upload-file.png" mode="aspectFit" />
     </view>
@@ -17,7 +17,7 @@
       <view class="upload-title">上传知识文件</view>
       <view class="upload-meta">支持 PDF、DOCX、MD、TXT、HTML、CSV，单文件最大 20MB</view>
     </view>
-    <button class="choose-button">选择文件</button>
+    <button class="choose-button" disabled="{{!canUpload}}">{{canUpload ? "选择文件" : "无上传权限"}}</button>
   </view>
 
   <!-- 文件列表 -->
@@ -39,17 +39,29 @@
         <!-- 状态和操作 -->
         <view class="file-status-area">
           <text class="file-status status-{{item.status}}">{{item.statusText}}</text>
+          <view wx:if="{{item.status === 'failed'}}" class="file-action-row">
+            <text
+              class="file-action-link retry-link"
+              data-id="{{item.id}}"
+              catchtap="retryUpload"
+            >重试</text>
+            <text
+              class="file-action-link revoke-link"
+              data-id="{{item.id}}"
+              catchtap="removeFileTask"
+            >撤销</text>
+          </view>
           <text
-            wx:if="{{item.status === 'failed'}}"
-            class="file-action-link retry-link"
+            wx:elif="{{item.status === 'invalid'}}"
+            class="file-action-link revoke-link"
             data-id="{{item.id}}"
-            bindtap="retryUpload"
-          >重试</text>
+            catchtap="removeFileTask"
+          >撤销</text>
           <text
             wx:elif="{{item.status === 'success'}}"
             class="file-action-link download-link"
             data-id="{{item.id}}"
-            bindtap="downloadFile"
+            catchtap="downloadFile"
           >下载</text>
         </view>
       </view>
@@ -69,9 +81,6 @@
       <view class="sheet-handle"></view>
       <view class="sheet-head">
         <text class="sheet-title">选择目标知识库</text>
-        <button class="sheet-close" bindtap="closeKbPicker" aria-label="关闭">
-          <image class="sheet-close-icon" src="/images/icons/close.png" mode="aspectFit" />
-        </button>
       </view>
       <scroll-view class="sheet-list" scroll-y>
         <view

@@ -1,4 +1,9 @@
-const { getSessions, getMessages, deleteSession } = require("../../services/qa");
+const {
+  getSessions,
+  getMessages,
+  deleteSession,
+  exportSessionPdf,
+} = require("../../services/qa");
 const { adaptSessionPage, adaptMessagePage } = require("../../adapters/index");
 const storage = require("../../utils/storage");
 
@@ -175,6 +180,24 @@ Page({
         }
       },
     });
+  },
+
+  async exportSession(e) {
+    const sessionId = e.currentTarget.dataset.id;
+    const sessionTitle = e.currentTarget.dataset.title;
+    if (!sessionId) return;
+
+    wx.showLoading({ title: "正在导出..." });
+    try {
+      await exportSessionPdf(sessionId, sessionTitle);
+    } catch (err) {
+      wx.showToast({
+        title: err.message || "导出失败",
+        icon: "none",
+      });
+    } finally {
+      wx.hideLoading();
+    }
   },
 
   // 下拉刷新

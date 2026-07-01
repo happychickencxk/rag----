@@ -2,6 +2,14 @@ const { getKnowledgeBases } = require("../../services/knowledge");
 const { query, createSession } = require("../../services/qa");
 const { adaptKnowledgeBasePage, adaptMessage } = require("../../adapters/index");
 const storage = require("../../utils/storage");
+const { shouldResetLocalSession } = require("../../utils/session-state");
+const {
+  resolveQaErrorStatus,
+  decorateAssistantMessage,
+} = require("../../utils/qa-status");
+const {
+  getQuestionSuggestions,
+} = require("../../utils/question-suggestions");
 
 Page({
   data: {
@@ -9,8 +17,12 @@ Page({
     selectedKb: null,
     // 知识库列表（底部弹层用）
     knowledgeBases: [],
+    filteredKnowledgeBases: [],
+    kbKeyword: "",
     // 知识库弹层
     showKbSheet: false,
+    // 当前知识库的示例问题
+    exampleQuestions: getQuestionSuggestions(null),
     // 输入框
     question: "",
     // 消息列表
@@ -19,6 +31,8 @@ Page({
     sending: false,
     // 当前流式控制
     streamTask: null,
+    activeLoadingId: "",
+    cancelledLoadingId: "",
     // 当前会话 ID
     sessionId: "",
     // 页面状态
@@ -30,6 +44,20 @@ Page({
     const tabBar = this.getTabBar && this.getTabBar();
     if (tabBar) {
       tabBar.setData({ selected: 0 });
+    }
+
+    const storedSession = storage.getCurrentSession();
+    const selectedKbId = app.globalData.selectedKbId || "";
+    const localSessionInvalid = shouldResetLocalSession(
+      this.data.sessionId,
+      storedSession,
+      selectedKbId
+    );
+    if (localSessionInvalid) {
+      this.setData({
+        sessionId: "",
+        messages: [],
+      });
     }
 
     // 恢复会话 ID
@@ -56,11 +84,13 @@ Page({
       // 检查是否已经加载过（避免重复恢复）
       if (this.data.messages.length === 0 || this.data.sessionId !== stored.id) {
         this.setData({
-          messages: stored.messages.map((m) => ({
-            ...m,
-            citationExpanded: false,
-            feedbackStatus: m.feedbackStatus || "",
-          })),
+          messages: stored.messages.map((m) =>
+            decorateAssistantMessage({
+              ...m,
+              citationExpanded: false,
+              feedbackStatus: m.feedbackStatus || "",
+            })
+          ),
           sessionId: stored.id,
         });
         // 清除存储中的消息（避免下次误恢复）
@@ -87,7 +117,10 @@ Page({
     try {
       const result = await getKnowledgeBases({ size: 50 });
       const adapted = adaptKnowledgeBasePage(result);
-      this.setData({ knowledgeBases: adapted.list });
+      this.setData({
+        knowledgeBases: adapted.list,
+        filteredKnowledgeBases: adapted.list,
+      });
     } catch (e) {
       // KB 列表加载失败不影响已有数据
       console.error("[chat] 知识库列表加载失败:", e.message);
@@ -103,14 +136,20 @@ Page({
     // 从已加载列表中找到对应知识库
     const kb = this.data.knowledgeBases.find((k) => k.id === kbId);
     if (kb) {
-      this.setData({ selectedKb: kb });
+      this.setData({
+        selectedKb: kb,
+        exampleQuestions: getQuestionSuggestions(kb),
+      });
       return;
     }
 
     // 从本地存储恢复
     const savedKb = storage.getCurrentKb();
     if (savedKb) {
-      this.setData({ selectedKb: savedKb });
+      this.setData({
+        selectedKb: savedKb,
+        exampleQuestions: getQuestionSuggestions(savedKb),
+      });
       app.globalData.selectedKbId = savedKb.id;
       return;
     }
@@ -118,13 +157,20 @@ Page({
     // 选择第一个可用知识库
     const first = this.data.knowledgeBases.find((k) => k.permission === "granted");
     if (first) {
-      this.setData({ selectedKb: first });
+      this.setData({
+        selectedKb: first,
+        exampleQuestions: getQuestionSuggestions(first),
+      });
       app.setSelectedKb(first);
     }
   },
 
   openKnowledge() {
-    this.setData({ showKbSheet: true });
+    this.setData({
+      showKbSheet: true,
+      kbKeyword: "",
+      filteredKnowledgeBases: this.data.knowledgeBases,
+    });
   },
 
   closeKbSheet() {
@@ -132,6 +178,18 @@ Page({
   },
 
   noop() {},
+
+  onKbSearch(e) {
+    const keyword = e.detail.value.trim().toLowerCase();
+    const filtered = this.data.knowledgeBases.filter((item) => {
+      const text = `${item.name} ${item.description} ${item.department}`.toLowerCase();
+      return !keyword || text.includes(keyword);
+    });
+    this.setData({
+      kbKeyword: e.detail.value,
+      filteredKnowledgeBases: filtered,
+    });
+  },
 
   async selectKbFromSheet(e) {
     const id = e.currentTarget.dataset.id;
@@ -166,6 +224,9 @@ Page({
     this.setData({
       selectedKb: item,
       showKbSheet: false,
+      kbKeyword: "",
+      filteredKnowledgeBases: this.data.knowledgeBases,
+      exampleQuestions: getQuestionSuggestions(item),
       messages: [],
       sessionId: "",
     });
@@ -175,6 +236,11 @@ Page({
 
   onInput(e) {
     this.setData({ question: e.detail.value });
+  },
+
+  clearQuestion() {
+    if (this.data.sending) return;
+    this.setData({ question: "" });
   },
 
   onSelectExample(e) {
@@ -196,8 +262,10 @@ Page({
   /**
    * 默认使用 SSE 流式问答，fallback 时可用 sendQuestionNonStreaming。
    */
-  async sendQuestion(question) {
+  async sendQuestion(question, options) {
     if (this.data.sending) return;
+    const opts = options || {};
+    const appendUser = opts.appendUser !== false;
 
     const kbId = this.data.selectedKb ? this.data.selectedKb.id : "";
     if (!kbId) {
@@ -221,12 +289,20 @@ Page({
       role: "assistant",
       text: "",
       streaming: true,
+      retryQuestion: question,
+      regeneratedFrom: opts.regeneratedFrom || "",
     };
 
     this.setData({
       question: "",
       sending: true,
-      messages: [...this.data.messages, userMsg, loadingMsg],
+      activeLoadingId: loadingId,
+      cancelledLoadingId: "",
+      messages: [
+        ...this.data.messages,
+        ...(appendUser ? [userMsg] : []),
+        loadingMsg,
+      ],
     });
     wx.pageScrollTo({ scrollTop: 9999, duration: 200 });
 
@@ -247,6 +323,11 @@ Page({
       }
     }
 
+    if (this.data.cancelledLoadingId === loadingId) {
+      this.finishCancelledMessage(loadingId);
+      return;
+    }
+
     // 记录已追加内容，避免重复
     let streamedText = "";
 
@@ -261,18 +342,30 @@ Page({
         page.updateStreamMessage(loadingId, streamedText, false);
       },
       onDone: function (result) {
-        const adaptedCitations = (result.citations || []).map(function (c) {
-          return require("../../adapters/index").adaptCitation(c);
-        });
-        page.finalizeStreamMessage(loadingId, streamedText, result.message_id, adaptedCitations);
+        page.finalizeStreamMessage(loadingId, streamedText, result);
       },
       onError: function (err) {
+        const qaStatus = resolveQaErrorStatus(err);
+        if (qaStatus) {
+          page.finalizeStreamMessage(loadingId, streamedText, {
+            status_code: qaStatus.code,
+            message_id: "",
+            citations: [],
+          });
+          return;
+        }
         console.warn("[chat] SSE 失败，回退到非流式:", err.message);
         if (streamedText) {
-          page.finalizeStreamMessage(loadingId, streamedText, "", []);
+          page.finalizeStreamMessage(loadingId, streamedText, {
+            message_id: "",
+            citations: [],
+          });
         } else {
           page.setData({
             messages: page.data.messages.filter(function (m) { return m.id !== loadingId; }),
+            sending: false,
+            streamTask: null,
+            activeLoadingId: "",
           });
           page.sendQuestionNonStreaming(question, sessionId, kbId);
         }
@@ -304,16 +397,27 @@ Page({
   /**
    * 完成流式消息
    */
-  finalizeStreamMessage(loadingId, text, messageId, citations) {
+  finalizeStreamMessage(loadingId, text, result) {
+    const response = result || {};
+    const adaptedCitations = (response.citations || []).map((citation) =>
+      require("../../adapters/index").adaptCitation(citation)
+    );
+    const decorated = decorateAssistantMessage({
+      role: "assistant",
+      statusCode: response.status_code || "",
+      lowConfidence: Boolean(response.low_confidence),
+      citations: adaptedCitations,
+    });
     const messages = this.data.messages.map((m) => {
       if (m.id === loadingId) {
         return {
           ...m,
-          id: messageId || m.id,
+          ...decorated,
+          id: response.message_id || m.id,
+          allowActions: Boolean(response.message_id) && decorated.allowActions,
           text,
           streaming: false,
           loading: false,
-          citations,
           citationExpanded: false,
           paragraphs: text
             ? require("../../adapters/index").parseContentToParagraphs(text)
@@ -326,6 +430,8 @@ Page({
       sending: false,
       messages,
       streamTask: null,
+      activeLoadingId: "",
+      cancelledLoadingId: "",
     });
     wx.pageScrollTo({ scrollTop: 9999, duration: 200 });
   },
@@ -336,11 +442,50 @@ Page({
   setSendingError(loadingId, errorMsg, retryQuestion) {
     this.setData({
       sending: false,
+      streamTask: null,
+      activeLoadingId: "",
+      cancelledLoadingId: "",
       messages: this.data.messages.map((m) =>
         m.id === loadingId
           ? { ...m, streaming: false, loading: false, text: "", error: true, errorMsg, retryQuestion }
           : m
       ),
+    });
+  },
+
+  cancelGeneration() {
+    if (!this.data.sending) return;
+    this.setData({
+      cancelledLoadingId: this.data.activeLoadingId,
+    });
+    if (this.data.streamTask) {
+      this.data.streamTask.abort();
+    }
+    this.finishCancelledMessage(this.data.activeLoadingId);
+  },
+
+  finishCancelledMessage(loadingId) {
+    if (!loadingId) return;
+    const messages = this.data.messages.map((message) => {
+      if (message.id !== loadingId) return message;
+      const text = message.text || "";
+      return {
+        ...message,
+        text,
+        streaming: false,
+        loading: false,
+        cancelled: true,
+        allowActions: false,
+        paragraphs: text
+          ? require("../../adapters/index").parseContentToParagraphs(text)
+          : [],
+      };
+    });
+    this.setData({
+      messages,
+      sending: false,
+      streamTask: null,
+      activeLoadingId: "",
     });
   },
 
@@ -358,6 +503,8 @@ Page({
 
     this.setData({
       sending: true,
+      activeLoadingId: loadingMsg.id,
+      cancelledLoadingId: "",
       messages: [...this.data.messages, loadingMsg],
     });
 
@@ -374,15 +521,27 @@ Page({
         status_code: result.status_code || "",
         created_at: new Date().toISOString(),
       });
+      if (this.data.cancelledLoadingId === loadingMsg.id) return;
+      const decoratedMsg = decorateAssistantMessage(adaptedMsg);
 
       this.setData({
         sending: false,
+        activeLoadingId: "",
         messages: this.data.messages.map((m) =>
-          m.id === loadingMsg.id ? { ...adaptedMsg, loading: false } : m
+          m.id === loadingMsg.id ? { ...decoratedMsg, loading: false } : m
         ),
       });
       wx.pageScrollTo({ scrollTop: 9999, duration: 200 });
     } catch (err) {
+      if (this.data.cancelledLoadingId === loadingMsg.id) return;
+      const qaStatus = resolveQaErrorStatus(err);
+      if (qaStatus) {
+        this.finalizeStreamMessage(loadingMsg.id, "", {
+          status_code: qaStatus.code,
+          citations: [],
+        });
+        return;
+      }
       this.setSendingError(loadingMsg.id, err.message || "请求失败", question);
     }
   },
@@ -472,18 +631,35 @@ Page({
     }
   },
 
-  async regenerate() {
-    // 重新生成：使用最后一个用户问题重新请求
-    const userMsgs = this.data.messages.filter((m) => m.role === "user");
-    if (userMsgs.length === 0) {
+  regenerate(e) {
+    const messageId = e.currentTarget.dataset.msgId;
+    const answerIndex = this.data.messages.findIndex(
+      (message) => message.id === messageId
+    );
+    let question = "";
+    for (let index = answerIndex - 1; index >= 0; index -= 1) {
+      if (this.data.messages[index].role === "user") {
+        question = this.data.messages[index].text;
+        break;
+      }
+    }
+
+    if (!question) {
       wx.showToast({ title: "没有可重新生成的问题", icon: "none" });
       return;
     }
-    const lastQuestion = userMsgs[userMsgs.length - 1].text;
-    // 移除最后一条 assistant 消息
-    const messages = this.data.messages.slice(0, -1);
-    this.setData({ messages });
-    this.sendQuestion(lastQuestion);
+
+    this.setData({
+      messages: this.data.messages.map((message) =>
+        message.id === messageId
+          ? { ...message, superseded: true }
+          : message
+      ),
+    });
+    this.sendQuestion(question, {
+      appendUser: false,
+      regeneratedFrom: messageId,
+    });
   },
 
   voiceInput() {

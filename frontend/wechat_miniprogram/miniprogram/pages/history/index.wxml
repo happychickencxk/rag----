@@ -6,6 +6,7 @@
       <image class="search-icon" src="/images/icons/search.png" mode="aspectFit" />
       <input class="search-input" value="{{keyword}}" placeholder="搜索历史问题..." placeholder-class="search-placeholder" bindinput="onSearch" />
     </view>
+    <view class="search-boundary">仅搜索最近加载的 100 条会话</view>
   </view>
 
   <!-- 加载中 -->
@@ -58,8 +59,18 @@
           <view class="session-preview one-line">{{session.preview}}</view>
         </view>
         <view class="session-side">
-          <text class="session-time">{{session.time}}</text>
-          <text class="session-arrow">›</text>
+          <view class="session-side-top">
+            <text class="session-time">{{session.time}}</text>
+            <text class="session-arrow">›</text>
+          </view>
+          <view
+            class="session-export"
+            data-id="{{session.id}}"
+            data-title="{{session.title}}"
+            catchtap="exportSession"
+          >
+            导出
+          </view>
         </view>
       </view>
     </view>

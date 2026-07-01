@@ -62,6 +62,8 @@ async function wechatLogin(profile) {
     user_id: result.user_id,
     name: result.name || "",
     role: result.role || "",
+    role_name: result.role_name || "",
+    permissions: result.permissions || [],
     is_new_user: result.is_new_user,
   });
   // 会话 ID 与用户及后端数据源绑定，重新登录后不能继续复用旧会话。
@@ -97,7 +99,9 @@ async function getProfile() {
   storage.saveUserInfo({
     user_id: result.user_id,
     name: result.name || "",
-    role: result.role_name || result.role || "",
+    role: result.role || "",
+    role_name: result.role_name || "",
+    permissions: result.permissions || [],
     department: result.department_name || result.department || "",
     avatar_url: result.avatar_url || "",
     is_new_user: result.is_new_user,

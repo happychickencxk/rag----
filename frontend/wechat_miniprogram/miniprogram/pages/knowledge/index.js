@@ -95,7 +95,7 @@ Page({
     this.loadList(true);
   },
 
-  async selectKb(e) {
+  openKnowledgeBase(e) {
     const id = e.currentTarget.dataset.id;
     const item = this.data.list.find((kb) => kb.id === id);
     if (!item || item.permission === "denied") {
@@ -103,14 +103,9 @@ Page({
       return;
     }
 
-    const app = getApp();
-    app.setSelectedKb(item);
-    this.setData({ selectedKbId: id });
-
-    // 清除当前会话（切换知识库后旧会话失效）
-    app.clearCurrentSession();
-
-    wx.switchTab({ url: "/pages/chat/index" });
+    wx.navigateTo({
+      url: `/pages/documents/index?kbId=${encodeURIComponent(id)}`,
+    });
   },
 
   // 下拉刷新

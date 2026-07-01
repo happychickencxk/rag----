@@ -80,7 +80,7 @@ test("SSE 解析：中文 UTF-8 字节跨 chunk", () => {
   assert.deepStrictEqual(chunks, ["中文测试"]);
 });
 
-test("SSE 解析：done=true 返回 message_id 和 citations", () => {
+test("SSE 解析：done=true 返回消息、引用和特殊状态", () => {
   const results = [];
   const parser = createSSEParser({
     onDone(result) {
@@ -89,12 +89,14 @@ test("SSE 解析：done=true 返回 message_id 和 citations", () => {
   });
 
   parser.push(
-    'data: {"content": "", "done": true, "message_id": "msg-001", "citations": [{"id":"c1"}]}\n\n'
+    'data: {"content": "", "done": true, "message_id": "msg-001", "low_confidence": true, "status_code": "LowConfidence", "citations": [{"id":"c1"}]}\n\n'
   );
   parser.finish();
 
   assert.strictEqual(results.length, 1);
   assert.strictEqual(results[0].message_id, "msg-001");
+  assert.strictEqual(results[0].status_code, "LowConfidence");
+  assert.strictEqual(results[0].low_confidence, true);
   assert.deepStrictEqual(results[0].citations, [{ id: "c1" }]);
 });
 

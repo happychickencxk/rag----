@@ -39,6 +39,12 @@
   color: #bdbdbd;
 }
 
+.search-boundary {
+  margin-top: 10rpx;
+  color: #bdbdbd;
+  font-size: 21rpx;
+}
+
 .group-title {
   height: 72rpx;
   padding: 0 44rpx;
@@ -142,13 +148,18 @@
 }
 
 .session-side {
-  width: 96rpx;
+  width: 104rpx;
   margin-left: 18rpx;
   display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex: 0 0 104rpx;
+}
+
+.session-side-top {
+  display: flex;
   align-items: flex-start;
-  justify-content: flex-end;
-  gap: 14rpx;
-  flex: 0 0 96rpx;
+  gap: 10rpx;
 }
 
 .session-time {
@@ -162,6 +173,17 @@
   color: #bdbdbd;
   font-size: 36rpx;
   line-height: 1;
+}
+
+.session-export {
+  width: 68rpx;
+  height: 42rpx;
+  margin: 14rpx 0 0;
+  color: #1677ff;
+  font-size: 21rpx;
+  font-weight: 600;
+  line-height: 42rpx;
+  text-align: center;
 }
 
 .empty {

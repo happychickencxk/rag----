@@ -5,6 +5,7 @@
     "pages/knowledge/index",
     "pages/history/index",
     "pages/profile/index",
+    "pages/documents/index",
     "pages/citation/detail",
     "pages/feedback/submit",
     "pages/states/index",

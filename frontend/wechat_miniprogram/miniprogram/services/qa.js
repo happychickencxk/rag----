@@ -8,6 +8,18 @@ const config = require("../config/api");
 const storage = require("../utils/storage");
 const { normalizeUrl, generateRequestId, BusinessError } = require("../utils/request");
 const { createSSEParser, createUTF8ChunkDecoder } = require("../utils/sse");
+const { requestBinary, writeAndOpenDocument, sanitizeFilename } = require("../utils/file-transfer");
+
+function parseSseErrorPayload(data) {
+  if (!data) return {};
+  if (typeof data === "object" && !(data instanceof ArrayBuffer)) return data;
+  if (typeof data !== "string") return {};
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    return {};
+  }
+}
 
 /**
  * 非流式问答。
@@ -39,7 +51,7 @@ async function query(params) {
  * @param {string} params.question
  * @param {string} [params.sessionId]
  * @param {function} params.onText - 收到文本追加回调 (content: string) => void
- * @param {function} params.onDone - 完成回调 (result: { message_id, citations }) => void
+ * @param {function} params.onDone - 完成回调，包含消息、引用和特殊状态
  * @param {function} params.onError - 错误回调 (error: Error) => void
  * @returns {object} { abort: function } - 返回取消函数
  */
@@ -76,6 +88,17 @@ function querySSE(params) {
       }
     },
     onDone(result) {
+      if (result.error) {
+        if (onError) {
+          const error = new BusinessError(
+            result.error.code || 500,
+            result.error.message || "流式回答生成失败",
+            result.error
+          );
+          onError(error);
+        }
+        return;
+      }
       if (!aborted && onDone) {
         onDone(result);
       }
@@ -101,7 +124,12 @@ function querySSE(params) {
       // 如果服务器返回了非 200，处理错误
       if (res.statusCode !== 200) {
         if (onError) {
-          const err = new BusinessError(res.statusCode, `请求失败（${res.statusCode}）`);
+          const payload = parseSseErrorPayload(res.data);
+          const err = new BusinessError(
+            payload.code || res.statusCode,
+            payload.message || `请求失败（${res.statusCode}）`,
+            payload.data
+          );
           err.httpStatus = res.statusCode;
           onError(err);
         }
@@ -214,6 +242,20 @@ async function deleteSession(sessionId) {
   return deleteRequest(`/api/v1/qa/sessions/${sessionId}`);
 }
 
+/**
+ * 导出并打开 PDF 会话文件。
+ * @param {string} sessionId
+ * @param {string} title
+ */
+async function exportSessionPdf(sessionId, title) {
+  const data = await requestBinary(
+    `/api/v1/qa/sessions/${sessionId}/export`,
+    { format: "pdf" }
+  );
+  const filename = `${sanitizeFilename(title || "问答会话")}.pdf`;
+  await writeAndOpenDocument(data, filename);
+}
+
 // ===== 引用 =====
 
 /**
@@ -256,6 +298,7 @@ module.exports = {
   createSession,
   getMessages,
   deleteSession,
+  exportSessionPdf,
   getCitations,
   submitFeedback,
 };

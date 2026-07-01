@@ -1,11 +1,15 @@
-const { upload } = require("../../services/document");
+const {
+  upload,
+  downloadDocument,
+} = require("../../services/document");
 const { getKnowledgeBases } = require("../../services/knowledge");
 const { adaptKnowledgeBasePage } = require("../../adapters/index");
 const storage = require("../../utils/storage");
-
-// 允许的文件类型
-const ALLOWED_TYPES = ["pdf", "docx", "md", "txt", "html", "csv"];
-const MAX_SIZE = 20 * 1024 * 1024; // 20MB
+const {
+  getExtension,
+  validateFile,
+  formatFileSize,
+} = require("../../utils/file-validation");
 
 Page({
   data: {
@@ -19,6 +23,7 @@ Page({
     pendingFilePath: null,
     pendingFileName: "",
     pendingFileSize: 0,
+    canUpload: false,
   },
 
   onShow() {
@@ -26,10 +31,12 @@ Page({
     const kbId = app.globalData.selectedKbId || "";
     const savedKb = storage.getCurrentKb();
     const kbName = savedKb ? savedKb.name : "";
+    const user = storage.getUserInfo() || {};
 
     this.setData({
       selectedKbId: kbId,
       selectedKbName: kbName,
+      canUpload: this.hasUploadPermission(user),
     });
 
     this.loadKnowledgeBases();
@@ -49,6 +56,14 @@ Page({
    * 选择文件
    */
   chooseFile() {
+    if (!this.data.canUpload) {
+      wx.showToast({
+        title: "当前账号没有文件上传权限",
+        icon: "none",
+      });
+      return;
+    }
+
     wx.chooseMessageFile({
       count: 1,
       type: "file",
@@ -56,25 +71,14 @@ Page({
         if (!tempFiles.length) return;
 
         const file = tempFiles[0];
-        const ext = this.getExtension(file.name);
-        const sizeMB = (file.size / 1024 / 1024).toFixed(1);
-
-        // 校验扩展名
-        if (!ext || !ALLOWED_TYPES.includes(ext)) {
-          wx.showToast({
-            title: `不支持 ${(ext || '未知').toUpperCase()} 格式，仅支持 PDF、DOCX、MD、TXT、HTML、CSV`,
-            icon: "none",
-            duration: 3000,
-          });
-          return;
-        }
-
-        // 校验大小
-        if (file.size > MAX_SIZE) {
-          wx.showToast({
-            title: `文件过大（${sizeMB}MB），超过 20MB 限制`,
-            icon: "none",
-            duration: 3000,
+        const validation = validateFile(file.name, file.size);
+        if (!validation.valid) {
+          this.addRejectedFile(file, validation.reason);
+          wx.showModal({
+            title: "文件未上传",
+            content: `${validation.reason}。可在文件列表中撤销本次记录。`,
+            showCancel: false,
+            confirmText: "知道了",
           });
           return;
         }
@@ -92,19 +96,40 @@ Page({
         }
 
         // 添加上传任务
-        this.addFileTask(file, ext, sizeMB);
+        this.addFileTask(
+          file,
+          validation.extension,
+          formatFileSize(file.size)
+        );
       },
     });
   },
 
   /**
+   * 记录被前端拦截的文件，便于用户明确撤销本次选择。
+   */
+  addRejectedFile(file, reason) {
+    const extension = getExtension(file.name);
+    const task = {
+      id: `file-invalid-${Date.now()}`,
+      name: file.name,
+      meta: `${(extension || "未知").toUpperCase()} · ${formatFileSize(file.size)} · 未上传`,
+      status: "invalid",
+      statusText: "格式不支持",
+      tempFilePath: "",
+      errorMsg: reason,
+    };
+    this.setData({ files: [task, ...this.data.files] });
+  },
+
+  /**
    * 添加文件上传任务
    */
-  addFileTask(file, ext, sizeMB) {
+  addFileTask(file, ext, sizeText) {
     const task = {
       id: `file-${Date.now()}`,
       name: file.name,
-      meta: `${ext.toUpperCase()} · ${sizeMB}MB · ${this.data.selectedKbName || '当前知识库'}`,
+      meta: `${ext.toUpperCase()} · ${sizeText} · ${this.data.selectedKbName || "当前知识库"}`,
       status: "pending", // pending | uploading | success | failed
       statusText: "待上传",
       tempFilePath: file.path,
@@ -129,11 +154,14 @@ Page({
     this.updateFileStatus(fileId, "uploading", "上传中...");
 
     try {
-      await upload({
+      const result = await upload({
         filePath: file.tempFilePath,
+        fileName: file.name,
         kbId: this.data.selectedKbId,
       });
-      this.updateFileStatus(fileId, "success", "上传成功");
+      this.updateFileStatus(fileId, "success", "上传成功", "", {
+        documentId: result.doc_id || result.id || "",
+      });
     } catch (err) {
       let errorMsg = err.message || "上传失败";
       if (err.httpStatus === 401) {
@@ -150,10 +178,16 @@ Page({
   /**
    * 更新文件状态
    */
-  updateFileStatus(fileId, status, statusText, errorMsg) {
+  updateFileStatus(fileId, status, statusText, errorMsg, extra) {
     const files = this.data.files.map((f) => {
       if (f.id === fileId) {
-        return { ...f, status, statusText, errorMsg: errorMsg || "" };
+        return {
+          ...f,
+          ...(extra || {}),
+          status,
+          statusText,
+          errorMsg: errorMsg || "",
+        };
       }
       return f;
     });
@@ -172,9 +206,25 @@ Page({
   },
 
   /**
-   * 下载文件 - 当前接口没有安全下载 URL
+   * 撤销未上传或上传失败的本地任务记录。
    */
-  downloadFile(e) {
+  removeFileTask(e) {
+    const fileId = e.currentTarget.dataset.id;
+    const file = this.data.files.find((item) => item.id === fileId);
+    if (!file || !["invalid", "failed", "pending"].includes(file.status)) {
+      wx.showToast({ title: "当前文件不可撤销", icon: "none" });
+      return;
+    }
+    this.setData({
+      files: this.data.files.filter((item) => item.id !== fileId),
+    });
+    wx.showToast({ title: "已撤销", icon: "success" });
+  },
+
+  /**
+   * 通过后端安全下载接口获取并打开文件。
+   */
+  async downloadFile(e) {
     const fileId = e.currentTarget.dataset.id;
     const file = this.data.files.find((f) => f.id === fileId);
     if (!file) return;
@@ -183,18 +233,30 @@ Page({
       wx.showToast({ title: "文件尚未上传成功，不可下载", icon: "none" });
       return;
     }
+    if (!file.documentId) {
+      wx.showToast({ title: "缺少文档标识，请刷新后重试", icon: "none" });
+      return;
+    }
 
-    // 当前契约没有安全下载接口，storage_path 不能作为客户端下载地址
-    wx.showModal({
-      title: "暂不可下载",
-      content: "当前接口未提供安全下载地址，文件下载功能暂不可用。如需下载，请联系管理员。",
-      showCancel: false,
-    });
+    wx.showLoading({ title: "下载中..." });
+    try {
+      await downloadDocument(file.documentId, file.name);
+    } catch (err) {
+      wx.showToast({ title: err.message || "下载失败", icon: "none" });
+    } finally {
+      wx.hideLoading();
+    }
   },
 
   /**
    * 知识库选择弹层
    */
+  openKbPicker() {
+    this.setData({ showKbPicker: true });
+  },
+
+  noop() {},
+
   selectKbForUpload(e) {
     const id = e.currentTarget.dataset.id;
     const kb = this.data.knowledgeBases.find((k) => k.id === id);
@@ -205,6 +267,7 @@ Page({
 
     const app = getApp();
     app.setSelectedKb(kb);
+    app.clearCurrentSession();
 
     this.setData({
       selectedKbId: kb.id,
@@ -214,8 +277,7 @@ Page({
 
     // 继续上传之前选择的文件
     if (this.data.pendingFilePath) {
-      const ext = this.getExtension(this.data.pendingFileName);
-      const sizeMB = (this.data.pendingFileSize / 1024 / 1024).toFixed(1);
+      const ext = getExtension(this.data.pendingFileName);
       this.addFileTask(
         {
           path: this.data.pendingFilePath,
@@ -223,7 +285,7 @@ Page({
           size: this.data.pendingFileSize,
         },
         ext,
-        sizeMB
+        formatFileSize(this.data.pendingFileSize)
       );
       this.setData({
         pendingFilePath: null,
@@ -242,16 +304,8 @@ Page({
     });
   },
 
-  getExtension(name) {
-    const idx = name.lastIndexOf(".");
-    if (idx === -1 || idx === name.length - 1) return "";
-    return name.substring(idx + 1).toLowerCase();
-  },
-
-  formatSize(size) {
-    if (size >= 1024 * 1024) {
-      return `${(size / 1024 / 1024).toFixed(1)} MB`;
-    }
-    return `${Math.max(Math.round(size / 1024), 1)} KB`;
+  hasUploadPermission(user) {
+    const permissions = Array.isArray(user.permissions) ? user.permissions : [];
+    return user.role === "admin" || permissions.includes("*");
   },
 });

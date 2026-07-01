@@ -5,6 +5,10 @@
 
 const { get } = require("../utils/request");
 const { uploadFile } = require("../utils/upload");
+const {
+  downloadAuthorized,
+  openDocument,
+} = require("../utils/file-transfer");
 
 /**
  * 获取文档列表。
@@ -29,6 +33,7 @@ async function getDocuments(params) {
  * 上传文件到指定知识库。
  * @param {object} opts
  * @param {string} opts.filePath - 本地文件路径
+ * @param {string} opts.fileName - 原始文件名
  * @param {string} opts.kbId - 目标知识库 ID
  * @param {string} [opts.source]
  * @param {string} [opts.version]
@@ -39,6 +44,7 @@ async function getDocuments(params) {
 async function upload(opts) {
   return uploadFile({
     filePath: opts.filePath,
+    fileName: opts.fileName,
     kbId: opts.kbId,
     source: opts.source,
     version: opts.version,
@@ -47,7 +53,20 @@ async function upload(opts) {
   });
 }
 
+/**
+ * 下载并打开有权限访问的文档。
+ * @param {string} docId
+ * @param {string} filename
+ */
+async function downloadDocument(docId, filename) {
+  const tempFilePath = await downloadAuthorized(
+    `/api/v1/documents/${docId}/download`
+  );
+  await openDocument(tempFilePath, filename);
+}
+
 module.exports = {
   getDocuments,
   upload,
+  downloadDocument,
 };

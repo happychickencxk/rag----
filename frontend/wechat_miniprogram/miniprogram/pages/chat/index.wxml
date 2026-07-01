@@ -16,6 +16,20 @@
   </view>
 
   <view class="conversation">
+    <view class="example-section" wx:if="{{!messages.length && !loading}}">
+      <view class="example-title">你可以这样问</view>
+      <view
+        class="example-question"
+        wx:for="{{exampleQuestions}}"
+        wx:key="*this"
+        data-question="{{item}}"
+        bindtap="onSelectExample"
+      >
+        <text class="example-question-text">{{item}}</text>
+        <text class="example-arrow">›</text>
+      </view>
+    </view>
+
     <block wx:for="{{messages}}" wx:key="id">
       <!-- 用户消息 -->
       <view wx:if="{{item.role === 'user'}}" class="message-row user-row">
@@ -28,6 +42,8 @@
           <image class="ai-avatar-image" src="/images/icons/ai-assistant.png" mode="aspectFit" />
         </view>
         <view class="ai-card">
+          <view class="previous-answer-label" wx:if="{{item.superseded}}">上一次回答</view>
+
           <!-- 初始加载中（尚未收到任何内容） -->
           <view wx:if="{{item.loading && !item.streaming && !item.error}}" class="state-loading">
             <view class="state-spinner-small"></view>
@@ -49,24 +65,37 @@
               <text>正在生成回答...</text>
             </view>
 
-            <!-- 低置信度警告 -->
-            <view class="low-confidence" wx:if="{{item.lowConfidence}}">
-              <image class="low-confidence-icon" src="/images/icons/warning-triangle.png" mode="aspectFit" />
-              <text>回答置信度较低，请结合引用来源人工确认。</text>
-            </view>
-
-            <!-- 回答内容（流式时显示纯文本，完成后显示段落） -->
-            <view class="answer-content" wx:if="{{!item.streaming && item.paragraphs && item.paragraphs.length}}">
-              <view class="answer-paragraph" wx:for="{{item.paragraphs}}" wx:for-item="paragraph" wx:key="id">
-                <text
-                  wx:for="{{paragraph.segments}}"
-                  wx:for-item="segment"
-                  wx:key="id"
-                  class="answer-segment {{segment.strong ? 'answer-strong' : ''}}"
-                >{{segment.text}}</text>
+            <!-- 后端特殊状态 -->
+            <view class="qa-status-card {{item.qaStatus.tone}}" wx:if="{{item.qaStatus}}">
+              <image class="qa-status-icon" src="{{item.qaStatus.icon}}" mode="aspectFit" />
+              <view class="qa-status-content">
+                <view class="qa-status-title">{{item.qaStatus.title}}</view>
+                <view class="qa-status-desc">{{item.qaStatus.description}}</view>
+                <view
+                  class="qa-status-retry"
+                  wx:if="{{item.qaStatus.allowRetry}}"
+                  data-question="{{item.retryQuestion}}"
+                  bindtap="retryMessage"
+                >重新提问</view>
               </view>
             </view>
-            <text wx:else class="answer-text {{item.streaming ? 'streaming-text' : ''}}">{{item.text}}<text wx:if="{{item.streaming}}" class="streaming-cursor">|</text></text>
+
+            <view class="cancelled-note" wx:if="{{item.cancelled}}">已停止生成</view>
+
+            <!-- 回答内容（流式时显示纯文本，完成后显示段落） -->
+            <block wx:if="{{!item.hideAnswer}}">
+              <view class="answer-content" wx:if="{{!item.streaming && item.paragraphs && item.paragraphs.length}}">
+                <view class="answer-paragraph" wx:for="{{item.paragraphs}}" wx:for-item="paragraph" wx:key="id">
+                  <text
+                    wx:for="{{paragraph.segments}}"
+                    wx:for-item="segment"
+                    wx:key="id"
+                    class="answer-segment {{segment.strong ? 'answer-strong' : ''}}"
+                  >{{segment.text}}</text>
+                </view>
+              </view>
+              <text wx:else class="answer-text {{item.streaming ? 'streaming-text' : ''}}">{{item.text}}<text wx:if="{{item.streaming}}" class="streaming-cursor">|</text></text>
+            </block>
 
             <!-- 引用来源 -->
             <view class="citation-card" wx:if="{{item.citations && item.citations.length}}">
@@ -102,7 +131,7 @@
             </view>
 
             <!-- 反馈栏 -->
-            <view class="feedback-bar">
+            <view class="feedback-bar" wx:if="{{!item.streaming && item.allowActions}}">
               <button
                 class="feedback-btn {{item.feedbackStatus === 'like' ? 'active' : ''}}"
                 data-value="like"
@@ -125,7 +154,7 @@
                 <image class="feedback-action-icon" src="/images/icons/copy.png" mode="aspectFit" />
                 <text>复制</text>
               </button>
-              <button class="feedback-btn" bindtap="regenerate">
+              <button class="feedback-btn" data-msg-id="{{item.id}}" bindtap="regenerate">
                 <image class="feedback-action-icon" src="/images/icons/regenerate.png" mode="aspectFit" />
                 <text>重新生成</text>
               </button>
@@ -160,8 +189,14 @@
         bindinput="onInput"
         disabled="{{sending}}"
       ></textarea>
+      <button class="input-clear" wx:if="{{question && !sending}}" bindtap="clearQuestion" aria-label="清空输入">
+        <image class="input-clear-icon" src="/images/icons/close.png" mode="aspectFit" />
+      </button>
     </view>
-    <button class="send-btn {{question && !sending ? 'enabled' : ''}}" bindtap="onSend" aria-label="发送" disabled="{{sending}}">
+    <button class="cancel-btn" wx:if="{{sending}}" bindtap="cancelGeneration" aria-label="停止生成">
+      <view class="cancel-square"></view>
+    </button>
+    <button class="send-btn {{question ? 'enabled' : ''}}" wx:else bindtap="onSend" aria-label="发送">
       <image class="send-icon" src="/images/icons/send-message.png" mode="aspectFit" />
     </button>
   </view>
@@ -176,10 +211,20 @@
           <image class="sheet-close-icon" src="/images/icons/close.png" mode="aspectFit" />
         </button>
       </view>
+      <view class="sheet-search">
+        <image class="sheet-search-icon" src="/images/icons/search.png" mode="aspectFit" />
+        <input
+          class="sheet-search-input"
+          value="{{kbKeyword}}"
+          placeholder="搜索知识库"
+          placeholder-class="question-placeholder"
+          bindinput="onKbSearch"
+        />
+      </view>
       <scroll-view class="sheet-list" scroll-y>
         <view
           class="sheet-kb-cell {{item.permission === 'denied' ? 'is-disabled' : ''}}"
-          wx:for="{{knowledgeBases}}"
+          wx:for="{{filteredKnowledgeBases}}"
           wx:key="id"
           data-id="{{item.id}}"
           bindtap="selectKbFromSheet"
@@ -202,6 +247,7 @@
           <text class="sheet-check" wx:if="{{selectedKb.id === item.id}}">✓</text>
           <text class="sheet-arrow" wx:else>›</text>
         </view>
+        <view class="sheet-empty" wx:if="{{!filteredKnowledgeBases.length}}">未找到匹配的知识库</view>
       </scroll-view>
     </view>
   </view>

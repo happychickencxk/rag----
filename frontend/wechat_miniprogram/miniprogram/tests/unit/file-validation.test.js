@@ -3,33 +3,10 @@
  */
 const assert = require("node:assert");
 const test = require("node:test");
-
-// 允许的文件扩展名
-const ALLOWED_EXTENSIONS = ["pdf", "docx", "md", "txt", "html", "csv"];
-const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-
-function validateFile(fileName, fileSize) {
-  const ext = getExtension(fileName);
-  if (!ext) {
-    return { valid: false, reason: "无法识别文件类型" };
-  }
-  if (!ALLOWED_EXTENSIONS.includes(ext)) {
-    return {
-      valid: false,
-      reason: `不支持 ${ext.toUpperCase()} 格式，仅支持 PDF、DOCX、MD、TXT、HTML、CSV`,
-    };
-  }
-  if (fileSize > MAX_FILE_SIZE) {
-    return { valid: false, reason: "文件超过 20MB 大小限制" };
-  }
-  return { valid: true, ext };
-}
-
-function getExtension(name) {
-  const idx = name.lastIndexOf(".");
-  if (idx === -1 || idx === name.length - 1) return "";
-  return name.substring(idx + 1).toLowerCase();
-}
+const {
+  validateFile,
+  formatFileSize,
+} = require("../../utils/file-validation");
 
 test("支持的文件类型全部通过", () => {
   const files = [
@@ -88,5 +65,10 @@ test("超过 20MB 文件被拒绝", () => {
 test("扩展名大小写不敏感", () => {
   const result = validateFile("DOC.PDF", 1024);
   assert.strictEqual(result.valid, true);
-  assert.strictEqual(result.ext, "pdf");
+  assert.strictEqual(result.extension, "pdf");
+});
+
+test("文件大小格式化适合上传列表展示", () => {
+  assert.strictEqual(formatFileSize(1024), "1KB");
+  assert.strictEqual(formatFileSize(1536 * 1024), "1.5MB");
 });
