@@ -448,12 +448,17 @@
   background: #fffbeb;
 }
 
-.citation-path,
-.citation-excerpt {
+.citation-location,
+.citation-path {
   margin-top: 7rpx;
   color: #888888;
   font-size: 22rpx;
   line-height: 1.55;
+}
+
+.citation-location {
+  color: #1677ff;
+  font-weight: 600;
 }
 
 .feedback-bar {

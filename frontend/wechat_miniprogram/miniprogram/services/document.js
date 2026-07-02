@@ -30,6 +30,19 @@ async function getDocuments(params) {
 }
 
 /**
+ * 获取命中切片及相邻原文，用于引用页精确定位。
+ * @param {string} docId
+ * @param {string} chunkId
+ * @param {number} [context=1]
+ */
+async function getChunkSource(docId, chunkId, context = 1) {
+  return get(
+    `/api/v1/documents/${encodeURIComponent(docId)}/chunks/${encodeURIComponent(chunkId)}/source`,
+    { context }
+  );
+}
+
+/**
  * 上传文件到指定知识库。
  * @param {object} opts
  * @param {string} opts.filePath - 本地文件路径
@@ -67,6 +80,7 @@ async function downloadDocument(docId, filename) {
 
 module.exports = {
   getDocuments,
+  getChunkSource,
   upload,
   downloadDocument,
 };

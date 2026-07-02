@@ -1,10 +1,17 @@
 const { getCitations } = require("../../services/qa");
+const {
+  getChunkSource,
+  downloadDocument,
+} = require("../../services/document");
 const { adaptCitation } = require("../../adapters/index");
 
 Page({
   data: {
     citation: null,
-    expanded: false,
+    sourceRecords: [],
+    targetAnchor: "",
+    sourceStatus: "idle",
+    downloading: false,
     sessionId: "",
     messageId: "",
     citationId: "",
@@ -65,7 +72,9 @@ Page({
       this.setData({
         citation: adapted,
         status: "done",
+        sourceStatus: "loading",
       });
+      await this.loadSource(adapted);
     } catch (err) {
       if (err.httpStatus === 403 || err.code === 403) {
         // 403 权限受限：不展示完整原文
@@ -82,18 +91,84 @@ Page({
     }
   },
 
-  toggleText() {
-    this.setData({ expanded: !this.data.expanded });
+  async loadSource(citation) {
+    if (!citation.docId || !citation.id) {
+      this.setData({
+        sourceRecords: [{ ...citation, isTarget: true }],
+        targetAnchor: citation.sourceAnchor,
+        sourceStatus: "fallback",
+      });
+      return;
+    }
+
+    try {
+      const result = await getChunkSource(citation.docId, citation.id, 1);
+      const document = result.document || {};
+      const records = (result.records || []).map((record) => {
+        const adapted = adaptCitation({
+          ...record,
+          doc_name: document.filename || citation.title,
+          kb_name: document.kb_name || citation.kb,
+          permission: citation.permission,
+        });
+        return {
+          ...adapted,
+          isTarget: adapted.id === result.target_chunk_id,
+        };
+      });
+      this.setData({
+        sourceRecords: records.length
+          ? records
+          : [{ ...citation, isTarget: true }],
+        targetAnchor:
+          (result.target_location && result.target_location.source_anchor) ||
+          citation.sourceAnchor,
+        sourceStatus: records.length ? "done" : "fallback",
+      });
+    } catch (_err) {
+      // 引用本身可用时，上下文加载失败不应阻断用户查看命中片段。
+      this.setData({
+        sourceRecords: [{ ...citation, isTarget: true }],
+        targetAnchor: citation.sourceAnchor,
+        sourceStatus: "fallback",
+      });
+    }
   },
 
   copyCitation() {
     const { citation } = this.data;
     if (!citation) return;
-    const parts = [citation.title, citation.path, citation.excerpt].filter(Boolean);
+    const parts = [
+      citation.title,
+      citation.locationLabel,
+      citation.path,
+      citation.excerpt,
+    ].filter(Boolean);
     wx.setClipboardData({
-      data: parts.join("｜"),
+      data: parts.join("\n"),
       success: () => wx.showToast({ title: "已复制" }),
     });
+  },
+
+  async openOriginal() {
+    const { citation, downloading } = this.data;
+    if (!citation || !citation.docId || downloading) {
+      if (citation && !citation.docId) {
+        wx.showToast({ title: "该历史引用缺少文档标识", icon: "none" });
+      }
+      return;
+    }
+
+    this.setData({ downloading: true });
+    wx.showLoading({ title: "打开中..." });
+    try {
+      await downloadDocument(citation.docId, citation.title);
+    } catch (err) {
+      wx.showToast({ title: err.message || "原文件打开失败", icon: "none" });
+    } finally {
+      wx.hideLoading();
+      this.setData({ downloading: false });
+    }
   },
 
   feedback() {

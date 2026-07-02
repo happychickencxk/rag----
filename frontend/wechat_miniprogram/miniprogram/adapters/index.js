@@ -233,10 +233,36 @@ function parseContentToParagraphs(content) {
 
 // ===== 引用适配 =====
 
+function formatCitationLocation(record) {
+  if (record.location_label) return record.location_label;
+
+  const locatorType = record.locator_type || "line";
+  const pageNumber = record.page_number;
+  const startLine = record.start_line;
+  const endLine = record.end_line;
+  const range = (unit) => {
+    if (startLine == null) return "";
+    if (endLine == null || Number(endLine) === Number(startLine)) {
+      return `第 ${startLine} ${unit}`;
+    }
+    return `第 ${startLine}-${endLine} ${unit}`;
+  };
+
+  if (locatorType === "page_line" && pageNumber != null) {
+    const lines = range("行");
+    return `第 ${pageNumber} 页${lines ? `，${lines}` : ""}`;
+  }
+  if (locatorType === "paragraph") return range("段");
+  if (locatorType === "row") return range("行数据");
+  if (locatorType === "element") return range("个内容段");
+  return range("行") || record.chapter_path || record.path || "";
+}
+
 /**
  * 后端引用记录 → 视图模型
- * 后端字段：chunk_id, doc_name, chapter_path, content, similarity_score,
- *           rerank_score, kb_name, updated_at, permission
+ * 后端字段：chunk_id, doc_id, doc_name, chapter_path, content,
+ *           location_label, page_number, start_line, end_line,
+ *           similarity_score, rerank_score, kb_name, updated_at, permission
  */
 function adaptCitation(record) {
   const similarity = record.similarity_score != null
@@ -245,15 +271,28 @@ function adaptCitation(record) {
   const rerank = record.rerank_score != null
     ? record.rerank_score
     : record.rerank;
+  const path = record.chapter_path || record.chunk_path || record.path || "";
+  const locationLabel = formatCitationLocation(record);
 
   return {
     id: record.chunk_id || record.id || "",
+    docId: record.doc_id || record.docId || "",
+    chunkIndex: record.chunk_index != null ? record.chunk_index : null,
     title: record.doc_name || record.document_name || record.title || "",
     kb: record.kb_name || record.kb || "",
-    path: record.chapter_path || record.chunk_path || record.path || "",
+    path,
+    locationDetail:
+      path && !locationLabel.includes(path) ? path : "",
+    locatorType: record.locator_type || "line",
+    pageNumber: record.page_number != null ? record.page_number : null,
+    startLine: record.start_line != null ? record.start_line : null,
+    endLine: record.end_line != null ? record.end_line : null,
+    locationLabel,
+    sourceAnchor:
+      record.source_anchor || `source-${record.chunk_id || record.id || ""}`,
     updatedAt: formatDisplayDate(record.updated_at || record.updatedAt),
-    similarity: similarity != null ? String(similarity) : "",
-    rerank: rerank != null ? String(rerank) : "",
+    similarity: formatScore(similarity),
+    rerank: formatScore(rerank),
     rerankPercent: formatScorePercent(rerank),
     scoreLevel: getScoreLevel(rerank),
     excerpt: record.content || record.excerpt || "",
@@ -276,6 +315,12 @@ function formatScorePercent(score) {
   const num = parseFloat(score);
   if (isNaN(num)) return "";
   return `${Math.round(num * 100)}%`;
+}
+
+function formatScore(score) {
+  if (score == null || score === "") return "";
+  const num = parseFloat(score);
+  return Number.isNaN(num) ? "" : num.toFixed(2);
 }
 
 function getScoreLevel(score) {
@@ -358,6 +403,7 @@ module.exports = {
   adaptMessage,
   adaptMessagePage,
   adaptCitation,
+  formatCitationLocation,
   adaptUserProfile,
   mapFeedbackReason,
   FEEDBACK_TYPE_MAP,

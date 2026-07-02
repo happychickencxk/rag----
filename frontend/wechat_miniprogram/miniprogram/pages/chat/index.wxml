@@ -111,20 +111,21 @@
                 <view
                   class="citation-item"
                   wx:for="{{item.citations}}"
+                  wx:for-item="citation"
                   wx:key="id"
                   data-msg-id="{{item.id}}"
-                  data-cid="{{item.id}}"
+                  data-cid="{{citation.id}}"
                   bindtap="openCitation"
                 >
                   <view class="citation-index">{{index + 1}}</view>
                   <view class="citation-body">
                     <view class="citation-line">
-                      <text class="citation-name one-line">{{item.title}}</text>
-                      <text class="score {{item.scoreLevel}}">{{item.rerankPercent}}</text>
+                      <text class="citation-name one-line">{{citation.title}}</text>
+                      <text class="score {{citation.scoreLevel}}">{{citation.rerankPercent}}</text>
                     </view>
-                    <view class="citation-path one-line">{{item.path}}</view>
-                    <view class="citation-excerpt two-line" wx:if="{{item.permitted}}">{{item.excerpt}}</view>
-                    <view class="citation-excerpt two-line citation-restricted" wx:else>无权查看完整原文</view>
+                    <view class="citation-location one-line">{{citation.locationLabel || "查看原文位置"}}</view>
+                    <view class="citation-path one-line" wx:if="{{citation.locationDetail}}">{{citation.locationDetail}}</view>
+                    <view class="citation-path citation-restricted" wx:if="{{!citation.permitted}}">无权查看完整原文</view>
                   </view>
                 </view>
               </view>

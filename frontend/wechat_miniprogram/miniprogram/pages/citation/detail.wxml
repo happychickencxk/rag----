@@ -30,6 +30,9 @@
       </view>
       <view class="doc-meta" wx:if="{{citation.kb}}">所属：{{citation.kb}}</view>
       <view class="doc-meta" wx:if="{{citation.path}}">章节：{{citation.path}}</view>
+      <view class="doc-location" wx:if="{{citation.locationLabel}}">
+        定位：{{citation.locationLabel}}
+      </view>
       <view class="doc-meta" wx:if="{{citation.updatedAt}}">更新：{{citation.updatedAt}}</view>
       <view class="permission {{citation.permitted ? 'ok' : 'limited'}}">{{citation.permitted ? "已授权" : "权限受限"}}</view>
     </view>
@@ -46,15 +49,32 @@
     </view>
 
     <view class="content-card card">
-      <view class="section-title">原文片段</view>
-      <view class="highlight" wx:if="{{citation.highlight}}">{{citation.highlight}}</view>
-      <!-- 权限受限时隐藏原文 -->
+      <view class="section-title">原文定位</view>
       <view wx:if="{{citation.permitted}}">
-        <view class="excerpt {{expanded ? '' : 'clamp'}}">{{citation.excerpt}}</view>
-        <view class="expand-btn" bindtap="toggleText" wx:if="{{citation.excerpt}}">
-          <text>{{expanded ? "收起片段" : "展开完整片段"}}</text>
-          <view class="expand-chevron {{expanded ? 'is-expanded' : ''}}"></view>
+        <view class="source-loading" wx:if="{{sourceStatus === 'loading'}}">
+          正在定位原文...
         </view>
+        <scroll-view
+          wx:else
+          class="source-scroll"
+          scroll-y
+          scroll-with-animation
+          scroll-into-view="{{targetAnchor}}"
+        >
+          <view
+            id="{{source.sourceAnchor}}"
+            class="source-block {{source.isTarget ? 'is-target' : ''}}"
+            wx:for="{{sourceRecords}}"
+            wx:for-item="source"
+            wx:key="id"
+          >
+            <view class="source-block-head">
+              <text>{{source.locationLabel || source.path || "原文位置"}}</text>
+              <text class="target-badge" wx:if="{{source.isTarget}}">命中位置</text>
+            </view>
+            <view class="source-text">{{source.excerpt}}</view>
+          </view>
+        </scroll-view>
       </view>
       <view class="limited-tip" wx:if="{{!citation.permitted}}">
         <image class="limited-icon" src="/images/icons/no-permission.png" mode="aspectFit" />
@@ -62,9 +82,19 @@
       </view>
     </view>
 
+    <button
+      class="open-original"
+      bindtap="openOriginal"
+      loading="{{downloading}}"
+      disabled="{{downloading || !citation.docId}}"
+    >
+      <image class="open-original-icon" src="/images/icons/preview.png" mode="aspectFit" />
+      <text>{{downloading ? "正在打开" : "打开原文件"}}</text>
+    </button>
+
     <view class="action-bar">
-      <button class="action primary" bindtap="copyCitation">
-        <image class="action-icon copy-action-icon" src="/images/icons/copy.png" mode="aspectFit" />
+      <button class="action" bindtap="copyCitation">
+        <image class="action-icon" src="/images/icons/copy.png" mode="aspectFit" />
         <text>复制引用</text>
       </button>
       <button class="action" bindtap="feedback">

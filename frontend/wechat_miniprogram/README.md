@@ -9,7 +9,7 @@
 - `pages/knowledge/index`：知识库页，服务端搜索、分页加载、权限状态和文档列表入口。
 - `pages/documents/index`：知识库文档页，文档搜索、分页、解析状态、安全下载和开始问答。
 - `pages/history/index`：历史会话，按时间分组、消息恢复、单会话删除和 PDF 导出。
-- `pages/citation/detail`：引用详情，权限保护（403 不泄露原文）。
+- `pages/citation/detail`：引用详情，展示页码/行号、相邻原文、命中高亮和原文件入口。
 - `pages/feedback/submit`：反馈纠错，六种细分原因映射到 API 枚举。
 - `pages/profile/index`：我的页，真实用户信息、退出登录。
 - `pages/states/index`：异常状态预览（开发验证用）。
@@ -27,7 +27,7 @@
 - `services/auth.js`：认证服务（微信登录/刷新/profile/退出）。
 - `services/knowledge.js`：知识库服务。
 - `services/qa.js`：问答服务（非流式/SSE/会话/导出/引用/反馈）。
-- `services/document.js`：文档服务（列表/上传/安全下载）。
+- `services/document.js`：文档服务（列表/上传/安全下载/引用原文定位）。
 - `adapters/index.js`：后端 snake_case → 前端视图模型映射、反馈原因映射。
 
 ## 本地 Mock 联调
@@ -49,6 +49,7 @@ node mock-server\server.js
 - 语音输入按钮保留但标记为"暂未开放"。
 - 消息通知、关于系统提供明确反馈，不是无反应按钮。
 - `NoEvidence`、`LowConfidence`、`NoPermission`、`ModelTimeout`、`SensitiveBlocked` 已接入问答实时流程。
+- 引用卡片展示“第几页、第几行”，点击后自动定位并高亮命中原文，不展示内部 chunk 编码。
 - 接口合规清单见 `../../.ai-agent/11-api-compliance-checklist.md`。
 - 本地 Mock、真实后端和微信开发者工具验收均已通过。
 - 原云开发 QuickStart 页面、组件、云函数和部署脚本已清理。
@@ -67,4 +68,4 @@ node --test frontend\wechat_miniprogram\miniprogram\tests\unit\*.test.js
 node --test mock-server\contract.test.js
 ```
 
-当前小程序单元测试共 71 项。
+当前小程序单元测试共 74 项。
