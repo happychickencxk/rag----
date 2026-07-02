@@ -294,6 +294,7 @@ function adaptCitation(record) {
     similarity: formatScore(similarity),
     rerank: formatScore(rerank),
     rerankPercent: formatScorePercent(rerank),
+    relevanceLabel: formatRelevanceLabel(rerank),
     scoreLevel: getScoreLevel(rerank),
     excerpt: record.content || record.excerpt || "",
     highlight: record.highlight || "",
@@ -323,12 +324,21 @@ function formatScore(score) {
   return Number.isNaN(num) ? "" : num.toFixed(2);
 }
 
+function formatRelevanceLabel(score) {
+  if (score == null || score === "") return "";
+  const num = parseFloat(score);
+  if (Number.isNaN(num)) return "";
+  if (num >= 0.65) return "高相关";
+  if (num >= 0.20) return "中相关";
+  return "低相关";
+}
+
 function getScoreLevel(score) {
   if (score == null || score === "") return "";
   const num = parseFloat(score);
   if (isNaN(num)) return "";
-  if (num >= 0.85) return "good";
-  if (num >= 0.7) return "warn";
+  if (num >= 0.65) return "good";
+  if (num >= 0.20) return "warn";
   return "low";
 }
 

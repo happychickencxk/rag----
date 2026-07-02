@@ -27,6 +27,7 @@ test("PDF 引用显示页码和页内行号", () => {
   assert.equal(citation.sourceAnchor, "source-chunk-1");
   assert.equal(citation.similarity, "0.42");
   assert.equal(citation.rerank, "0.54");
+  assert.equal(citation.relevanceLabel, "中相关");
 });
 
 test("文本和 Word 引用使用对应的位置单位", () => {

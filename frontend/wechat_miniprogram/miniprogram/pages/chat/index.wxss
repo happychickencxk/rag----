@@ -448,6 +448,11 @@
   background: #fffbeb;
 }
 
+.score.low {
+  color: #ef4444;
+  background: #fef2f2;
+}
+
 .citation-location,
 .citation-path {
   margin-top: 7rpx;

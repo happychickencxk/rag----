@@ -50,6 +50,7 @@ node mock-server\server.js
 - 消息通知、关于系统提供明确反馈，不是无反应按钮。
 - `NoEvidence`、`LowConfidence`、`NoPermission`、`ModelTimeout`、`SensitiveBlocked` 已接入问答实时流程。
 - 引用卡片展示“第几页、第几行”，点击后自动定位并高亮命中原文，不展示内部 chunk 编码。
+- 引用相关度按 Rerank 阈值展示“高相关/中相关/低相关”，不把模型分数误标成概率百分比。
 - 接口合规清单见 `../../.ai-agent/11-api-compliance-checklist.md`。
 - 本地 Mock、真实后端和微信开发者工具验收均已通过。
 - 原云开发 QuickStart 页面、组件、云函数和部署脚本已清理。

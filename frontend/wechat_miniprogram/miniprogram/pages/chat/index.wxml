@@ -121,7 +121,7 @@
                   <view class="citation-body">
                     <view class="citation-line">
                       <text class="citation-name one-line">{{citation.title}}</text>
-                      <text class="score {{citation.scoreLevel}}">{{citation.rerankPercent}}</text>
+                      <text class="score {{citation.scoreLevel}}">{{citation.relevanceLabel}}</text>
                     </view>
                     <view class="citation-location one-line">{{citation.locationLabel || "查看原文位置"}}</view>
                     <view class="citation-path one-line" wx:if="{{citation.locationDetail}}">{{citation.locationDetail}}</view>
