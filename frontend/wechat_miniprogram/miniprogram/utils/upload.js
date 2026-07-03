@@ -126,6 +126,15 @@ function uploadFile(opts) {
           reject(error);
           return;
         }
+        if (statusCode === 422) {
+          const error = new BusinessError(
+            422,
+            (data && data.message) || "上传参数不符合接口要求"
+          );
+          error.httpStatus = 422;
+          reject(error);
+          return;
+        }
         if (statusCode < 200 || statusCode >= 300) {
           const error = new BusinessError(statusCode, `上传失败（${statusCode}）`);
           error.httpStatus = statusCode;

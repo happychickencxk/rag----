@@ -265,26 +265,44 @@ function formatCitationLocation(record) {
  *           similarity_score, rerank_score, kb_name, updated_at, permission
  */
 function adaptCitation(record) {
+  const normalizedRecord = {
+    ...record,
+    page_number:
+      record.page_number != null ? record.page_number : record.page,
+    locator_type:
+      record.locator_type ||
+      (record.page_number != null || record.page != null
+        ? "page_line"
+        : undefined),
+  };
   const similarity = record.similarity_score != null
     ? record.similarity_score
-    : record.similarity;
+    : (record.similarity != null ? record.similarity : record.score);
   const rerank = record.rerank_score != null
     ? record.rerank_score
     : record.rerank;
   const path = record.chapter_path || record.chunk_path || record.path || "";
-  const locationLabel = formatCitationLocation(record);
+  const locationLabel = formatCitationLocation(normalizedRecord);
 
   return {
     id: record.chunk_id || record.id || "",
     docId: record.doc_id || record.docId || "",
     chunkIndex: record.chunk_index != null ? record.chunk_index : null,
-    title: record.doc_name || record.document_name || record.title || "",
+    title:
+      record.doc_name ||
+      record.document_name ||
+      record.filename ||
+      record.title ||
+      "",
     kb: record.kb_name || record.kb || "",
     path,
     locationDetail:
       path && !locationLabel.includes(path) ? path : "",
-    locatorType: record.locator_type || "line",
-    pageNumber: record.page_number != null ? record.page_number : null,
+    locatorType: normalizedRecord.locator_type || "line",
+    pageNumber:
+      normalizedRecord.page_number != null
+        ? normalizedRecord.page_number
+        : null,
     startLine: record.start_line != null ? record.start_line : null,
     endLine: record.end_line != null ? record.end_line : null,
     locationLabel,
@@ -296,7 +314,7 @@ function adaptCitation(record) {
     rerankPercent: formatScorePercent(rerank),
     relevanceLabel: formatRelevanceLabel(rerank),
     scoreLevel: getScoreLevel(rerank),
-    excerpt: record.content || record.excerpt || "",
+    excerpt: record.content || record.chunk_content || record.excerpt || "",
     highlight: record.highlight || "",
     // 权限保护：permitted 仅由后端返回的 permission 字段决定
     // 若后端未返回 permission 字段或值为 restricted，视为受限

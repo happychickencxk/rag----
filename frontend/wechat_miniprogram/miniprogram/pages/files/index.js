@@ -5,6 +5,7 @@ const {
 const { getKnowledgeBases } = require("../../services/knowledge");
 const { adaptKnowledgeBasePage } = require("../../adapters/index");
 const storage = require("../../utils/storage");
+const { canUploadDocuments } = require("../../utils/permissions");
 const {
   getExtension,
   validateFile,
@@ -305,7 +306,6 @@ Page({
   },
 
   hasUploadPermission(user) {
-    const permissions = Array.isArray(user.permissions) ? user.permissions : [];
-    return user.role === "admin" || permissions.includes("*");
+    return canUploadDocuments(user);
   },
 });

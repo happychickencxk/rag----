@@ -132,6 +132,15 @@ function parseResponse(res) {
     err.httpStatus = 413;
     throw err;
   }
+  if (statusCode === 422) {
+    const err = new BusinessError(
+      422,
+      (data && data.message) || "请求参数不符合接口要求",
+      data && data.data
+    );
+    err.httpStatus = 422;
+    throw err;
+  }
   if (statusCode === 429) {
     const err = new BusinessError(429, "请求过于频繁，请稍后重试");
     err.httpStatus = 429;
